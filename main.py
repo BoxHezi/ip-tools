@@ -4,7 +4,7 @@ import configparser
 import argparse
 from Module.GitRepo import GitRepo
 from Module.Cidr2Ip import CIDR2IP
-import Module.ASNUtils as ASNUtils
+import Module.IPUtils as IPUtils
 
 
 def init_argparse():
@@ -46,3 +46,7 @@ if __name__ == '__main__':
         else:
             cidr2ip = CIDR2IP()
             cidr2ip_handler[cidr2ip.country_code] = cidr2ip
+
+    # print(IPUtils.ip_query("51.83.59.99"))
+    # print(IPUtils.asn_query("50673"))
+    # print(IPUtils.internet_db_query("116.240.173.168"))
