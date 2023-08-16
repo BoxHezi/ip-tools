@@ -20,7 +20,7 @@ class GitRepo:
     def get_local_repo(self):
         return git.Repo(self.local_repo)
 
-    def check_update(self):
+    def check_update(self, pull: bool = True):
         origin = self.repo.remotes.origin
         origin.fetch()
 
@@ -31,7 +31,8 @@ class GitRepo:
             print("Git repo is up-to-date")
         else:
             print("Git repo update detected")
-            print("Pulling from remote...")
-            origin.pull()
+            if pull:
+                print("Pulling from remote...")
+                origin.pull()
 
         return local_hash == remote_hash
