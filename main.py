@@ -10,12 +10,11 @@ import Module.IPUtils as IPUtils
 def init_argparse():
     arg = argparse.ArgumentParser(description="IP Tools", formatter_class=argparse.RawTextHelpFormatter)
     arg.add_argument("-g", "--git", help="Clone git repo to local or check git local repo update", action="store_true")
-    arg.add_argument("-c2i", help="CIDR to IP function", action="store_true")
     arg.add_argument("-c", "--country",
                      help="country code for CIDR to IP function\n"
                           "support multiple country code, separate by space, e.g. -c au us nz, default set to au\n"
                           "when providing country code, CIDR to IP function will be enabled",
-                     nargs="+")
+                     nargs="*")
     return arg
 
 
@@ -36,15 +35,14 @@ if __name__ == '__main__':
         repo.check_update()
         del repo
 
-    if args.c2i:
+    if args.country is not None:
+        country_list = args.country
+        if len(country_list) == 0:
+            country_list = ["au"]
         # create CIDR2IP instance
         cidr2ip_handler = {}
-        if args.country:
-            for c in args.country:
-                cidr2ip = CIDR2IP(c)
-                cidr2ip_handler[cidr2ip.country_code] = cidr2ip
-        else:
-            cidr2ip = CIDR2IP()
+        for c in country_list:
+            cidr2ip = CIDR2IP(c)
             cidr2ip_handler[cidr2ip.country_code] = cidr2ip
 
     # print(IPUtils.ip_query("51.83.59.99"))

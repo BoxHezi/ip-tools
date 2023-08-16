@@ -2,7 +2,6 @@
 
 import ipaddress
 from tqdm import tqdm
-from Module.GitRepo import GitRepo
 
 # REF: https://github.com/herrbischoff/country-ip-blocks
 
@@ -10,8 +9,8 @@ BASE_PATH = "./country-ip-blocks/ipv4/"
 
 
 class CIDR2IP:
-    IP4_BASE_PATH = "./country-ip-blocks/ipv4/"
-    IP6_BASE_PATH = "./country-ip-blocks/ipv6/"
+    IPv4_BASE_PATH = "./country-ip-blocks/ipv4/"
+    IPv6_BASE_PATH = "./country-ip-blocks/ipv6/"
 
     def __init__(self, country_code: str = "au"):
         """
@@ -22,19 +21,22 @@ class CIDR2IP:
         self.ipv4_ip_dict = {}
         self.ipv6_cidrs = []
         self.ipv6_ip_dict = {}
+        self.read_cidr_file()
+
+    def read_cidr_file(self):
+        ipv4_path = self.IPv4_BASE_PATH + self.country_code + ".cidr"
+        ipv6_path = self.IPv6_BASE_PATH + self.country_code + ".cidr"
+        with open(ipv4_path, "r") as reader:
+            self.ipv4_cidrs = [line.strip() for line in reader]
+        with open(ipv6_path, "r") as reader:
+            self.ipv6_cidrs = [line.strip() for line in reader]
 
     def check_ipv4(self):
-        path = self.IP4_BASE_PATH + self.country_code + ".cidr"
-        with open(path, "r") as reader:
-            print("Start parsing IPv4 CIDR for country {}...".format(self.country_code.capitalize()))
-            self.ipv4_cidrs = [line.strip() for line in reader]
-            for cidr in tqdm(self.ipv4_cidrs):
-                self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv4Network(cidr)]
+        print("Start parsing IPv4 CIDR for country {}...".format(self.country_code.capitalize()))
+        for cidr in tqdm(self.ipv4_cidrs):
+            self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv4Network(cidr)]
 
     def check_ip6(self):
-        path = self.IP6_BASE_PATH + self.country_code + ".cidr"
-        with open(path, "r") as reader:
-            print("Start parsing IPv6 CIDR for country {}...".format(self.country_code.capitalize()))
-            self.ipv6_cidrs = [line.strip() for line in reader]
-            for cidr in tqdm(self.ipv6_cidrs):
-                self.ipv6_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]
+        print("Start parsing IPv6 CIDR for country {}...".format(self.country_code.capitalize()))
+        for cidr in tqdm(self.ipv6_cidrs):
+            self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]
