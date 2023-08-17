@@ -13,7 +13,7 @@ def ip_query(ip: str):
 
 
 def asn_query(asn: str):
-    endpoint = IPAPI_API_ENDPOINT + asn.strip()
+    endpoint = IPAPI_API_ENDPOINT + "as" + asn.strip()
     return requests.get(endpoint, timeout=50).json()
 
 
