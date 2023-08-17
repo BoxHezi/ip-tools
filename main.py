@@ -15,6 +15,17 @@ def init_argparse():
                           "support multiple country code, separate by space, e.g. -c au us nz, default set to au\n"
                           "when providing country code, CIDR to IP function will be enabled",
                      nargs="*")
+    arg.add_argument("-i", "--ip", help="Query ip information, using API from ipapi.is\n"
+                                        "support multiple ip, separate using space, e.g. -i 8.8.8.8 1.1.1.1",
+                     nargs="+")
+    arg.add_argument("-a", "--asn", help="Query ASN information, using API from ipapi.is\n"
+                                         "provide ASN without the prefix 'as'\n"
+                                         "support multiple ASN query, separate using space, e.g. -a 23500 23501",
+                     nargs="+")
+    arg.add_argument("-inet", "--internetdb", help="Query information from https://internetdb.shodan.io/\n"
+                                                   "support multiple ip, separate using space, e.g. -inet 8.8.8.8 "
+                                                   "1.1.1.1",
+                     nargs="+")
     return arg
 
 
@@ -45,6 +56,20 @@ if __name__ == '__main__':
             cidr2ip = CIDR2IP(c)
             cidr2ip_handler[cidr2ip.country_code] = cidr2ip
 
-    # print(IPUtils.ip_query("51.83.59.99"))
-    # print(IPUtils.asn_query("50673"))
-    # print(IPUtils.internet_db_query("116.240.173.168"))
+    if args.ip:
+        # print(IPUtils.ip_query("51.83.59.99"))
+        # print(args.ip)
+        for i in args.ip:
+            print(IPUtils.ip_query(str(i)))
+
+    if args.asn:
+        # print(IPUtils.asn_query("23501"))
+        # print(args.asn)
+        for a in args.asn:
+            print(IPUtils.asn_query(str(a)))
+
+    if args.internetdb:
+        # print(IPUtils.internet_db_query("116.240.173.168"))
+        # print(args.internetdb)
+        for inet in args.internetdb:
+            print(IPUtils.internet_db_query(str(inet)))
