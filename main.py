@@ -16,29 +16,29 @@ def init_argparse():
                           "when providing country code, CIDR to IP function will be enabled",
                      nargs="*")
     arg.add_argument("-i", "--ip", help="Query ip information, using API from ipapi.is\n"
-                                        "support multiple ip, separate using space, e.g. -i 8.8.8.8 1.1.1.1",
+                                        "support multiple ip, separate using space, e.g. -i 8.8.8.8 51.83.59.99",
                      nargs="+")
     arg.add_argument("-a", "--asn", help="Query ASN information, using API from ipapi.is\n"
                                          "provide ASN without the prefix 'as'\n"
-                                         "support multiple ASN query, separate using space, e.g. -a 23500 23501",
+                                         "support multiple ASN query, separate using space, e.g. -a 23500 23501 23501",
                      nargs="+")
     arg.add_argument("-inet", "--internetdb", help="Query information from https://internetdb.shodan.io/\n"
                                                    "support multiple ip, separate using space, e.g. -inet 8.8.8.8 "
-                                                   "1.1.1.1",
+                                                   "51.83.59.99",
                      nargs="+")
     return arg
 
 
+def init_configparser(conf_path: str = "config.conf"):
+    conf = configparser.ConfigParser()
+    conf.read(conf_path)
+    return conf
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    args = init_argparse()
-    args = args.parse_args()
-    if args.country:
-        # enable CIDR to IP function
-        args.c2i = True
-
-    config = configparser.ConfigParser()
-    config.read("config.conf")
+    args = init_argparse().parse_args()  # init argparse
+    config = init_configparser()  # init configparse
 
     if args.git:
         # git local repo initialization
@@ -47,9 +47,7 @@ if __name__ == '__main__':
         del repo
 
     if args.country is not None:
-        country_list = args.country
-        if len(country_list) == 0:
-            country_list = ["au"]
+        country_list = ["au"] if len(args.country) == 0 else args.country
         # create CIDR2IP instance
         cidr2ip_handler = {}
         for c in country_list:
@@ -57,19 +55,13 @@ if __name__ == '__main__':
             cidr2ip_handler[cidr2ip.country_code] = cidr2ip
 
     if args.ip:
-        # print(IPUtils.ip_query("51.83.59.99"))
-        # print(args.ip)
         for i in args.ip:
             print(IPUtils.ip_query(str(i)))
 
     if args.asn:
-        # print(IPUtils.asn_query("23501"))
-        # print(args.asn)
         for a in args.asn:
             print(IPUtils.asn_query(str(a)))
 
     if args.internetdb:
-        # print(IPUtils.internet_db_query("116.240.173.168"))
-        # print(args.internetdb)
         for inet in args.internetdb:
             print(IPUtils.internet_db_query(str(inet)))

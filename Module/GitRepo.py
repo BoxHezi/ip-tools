@@ -36,3 +36,9 @@ class GitRepo:
                 origin.pull()
 
         return local_hash == remote_hash
+
+    def check_updated_file(self):
+        """
+        check which files are updated
+        """
+        pass

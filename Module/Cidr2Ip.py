@@ -1,5 +1,4 @@
 #!/usr/local/bin/python3
-
 import ipaddress
 from tqdm import tqdm
 
@@ -12,7 +11,7 @@ class CIDR2IP:
     IPv4_BASE_PATH = "./country-ip-blocks/ipv4/"
     IPv6_BASE_PATH = "./country-ip-blocks/ipv6/"
 
-    def __init__(self, country_code: str = "au"):
+    def __init__(self, country_code):
         """
         :param country_code: country code to get cidr file, default set to au
         """
