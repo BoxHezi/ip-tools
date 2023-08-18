@@ -1,8 +1,17 @@
 import os
-import git
+import sqlite3
 
+import git
+import hashlib
+import json
+from Module.SqliteDriver import DB
+
+
+# REF: https://github.com/herrbischoff/country-ip-blocks
 
 class GitRepo:
+    __IPv4_BASE_PATH = "./country-ip-blocks/ipv4/"
+    __IPv6_BASE_PATH = "./country-ip-blocks/ipv6/"
 
     def __init__(self, config):
         self.local_repo = config["git_local_repo"]
@@ -40,5 +49,46 @@ class GitRepo:
     def check_updated_file(self):
         """
         check which files are updated
+        store hash in database
         """
-        pass
+        country_set = set()
+        for c in os.listdir(self.__IPv4_BASE_PATH) + os.listdir(self.__IPv6_BASE_PATH):
+            country_set.add(c)
+
+        data = {}
+        for c in country_set:
+            temp = {"country_code": c[0:2]}
+            ipv4_info = self.cal_file_hash(self.__IPv4_BASE_PATH + c)
+            ipv6_info = self.cal_file_hash(self.__IPv6_BASE_PATH + c)
+            temp["ipv4_info"] = {"md5": ipv4_info[0], "sha256": ipv4_info[1]} if ipv4_info is not None else None
+            temp["ipv6_info"] = {"md5": ipv6_info[0], "sha256": ipv6_info[1]} if ipv6_info is not None else None
+            data[c[0:2]] = temp
+
+        self.store_data(data)
+
+    @staticmethod
+    def store_data(data: dict):
+        db = DB("./data.db")
+        db.connection.execute("BEGIN;")
+        try:
+            for k, v in data.items():  # k: country_code, v: data
+                json_data = json.dumps(v)
+                db.update_data("cidr_git_repo", k, json_data)
+            db.connection.commit()
+        except sqlite3.Error as e:
+            db.connection.rollback()
+            print("Transaction rollback due to error {}".format(e))
+        finally:
+            del db
+
+    @staticmethod
+    def cal_file_hash(file_path):
+        try:
+            with open(file_path, "r") as reader:
+                temp = [line.strip() for line in reader]
+                md5 = hashlib.md5(",".join(temp).encode()).hexdigest()
+                sha256 = hashlib.sha256(",".join(temp).encode()).hexdigest()
+                return md5, sha256
+        except FileNotFoundError:
+            print("File {} not found".format(file_path))
+            return None

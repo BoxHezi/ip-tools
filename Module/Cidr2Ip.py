@@ -8,8 +8,8 @@ BASE_PATH = "./country-ip-blocks/ipv4/"
 
 
 class CIDR2IP:
-    IPv4_BASE_PATH = "./country-ip-blocks/ipv4/"
-    IPv6_BASE_PATH = "./country-ip-blocks/ipv6/"
+    __IPv4_BASE_PATH = "./country-ip-blocks/ipv4/"
+    __IPv6_BASE_PATH = "./country-ip-blocks/ipv6/"
 
     def __init__(self, country_code):
         """
@@ -23,8 +23,8 @@ class CIDR2IP:
         self.read_cidr_file()
 
     def read_cidr_file(self):
-        ipv4_path = self.IPv4_BASE_PATH + self.country_code + ".cidr"
-        ipv6_path = self.IPv6_BASE_PATH + self.country_code + ".cidr"
+        ipv4_path = self.__IPv4_BASE_PATH + self.country_code + ".cidr"
+        ipv6_path = self.__IPv6_BASE_PATH + self.country_code + ".cidr"
         with open(ipv4_path, "r") as reader:
             self.ipv4_cidrs = [line.strip() for line in reader]
         with open(ipv6_path, "r") as reader:
