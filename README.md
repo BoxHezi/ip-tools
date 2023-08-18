@@ -7,4 +7,6 @@
 - [x] ip lookups, for open ports and vulnerabilities, ref: https://internetdb.shodan.io/
 - [ ] result to json, database, etc
   - [ ] git repo info to database
+    - [x] put hash into database to detect change
   - [ ] cidr to ip info to database
+    - [ ] to consider: store cidr ip mapping in database?
