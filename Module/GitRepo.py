@@ -29,7 +29,7 @@ class GitRepo:
     def get_local_repo(self):
         return git.Repo(self.local_repo)
 
-    def check_update(self, pull: bool = True):
+    def has_update(self, pull: bool = True):
         origin = self.repo.remotes.origin
         origin.fetch()
 
@@ -44,7 +44,7 @@ class GitRepo:
                 print("Pulling from remote...")
                 origin.pull()
 
-        return local_hash == remote_hash
+        return local_hash != remote_hash
 
     def check_updated_file(self):
         """
@@ -64,25 +64,28 @@ class GitRepo:
             temp["ipv6_info"] = {"md5": ipv6_info[0], "sha256": ipv6_info[1]} if ipv6_info is not None else None
             data[c[0:2]] = temp
 
-        self.store_data(data)
+        return self.store_data(data)
 
     @staticmethod
-    def store_data(data: dict):
+    def store_data(data: dict) -> list:
+        updated_list = []  # a list to store updated CIDR information
         db = DB("./data.db")
         db.connection.execute("BEGIN;")
         try:
             for k, v in data.items():  # k: country_code, v: data
                 json_data = json.dumps(v)
-                db.update_data("cidr_git_repo", k, json_data)
+                if db.update_data("cidr_git_repo", k, json_data):
+                    updated_list.append(k)
             db.connection.commit()
         except sqlite3.Error as e:
             db.connection.rollback()
             print("Transaction rollback due to error {}".format(e))
         finally:
             del db
+            return updated_list
 
     @staticmethod
-    def cal_file_hash(file_path):
+    def cal_file_hash(file_path) -> tuple | None:
         try:
             with open(file_path, "r") as reader:
                 temp = [line.strip() for line in reader]

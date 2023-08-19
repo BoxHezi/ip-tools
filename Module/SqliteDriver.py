@@ -39,8 +39,11 @@ class DB:
         if value is None or len(value) == 0:
             insert_query = "INSERT INTO {}(country_code, data, last_updated) VALUES (?, ?, ?)".format(table)
             self.cursor.execute(insert_query, (data[0], data[1], last_updated))
+            return True
         else:
             v = value[1]
             if v != data[1]:
                 update_query = "UPDATE {} SET data = ?, last_updated = ? WHERE country_code = ?".format(table)
                 self.cursor.execute(update_query, (data[1], last_updated, data[0],))
+                return True
+            return False

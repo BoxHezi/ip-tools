@@ -43,8 +43,8 @@ if __name__ == '__main__':
     if args.git:
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
-        # repo.check_update()
-        repo.check_updated_file()
+        if repo.has_update():
+            repo.check_updated_file()
         del repo
 
     if args.country is not None:
