@@ -4,6 +4,8 @@ import sqlite3
 import git
 import hashlib
 import json
+
+import Module.Utils as Utils
 from Module.SqliteDriver import DB
 
 
@@ -51,15 +53,14 @@ class GitRepo:
         check which files are updated
         store hash in database
         """
-        country_set = set()
-        for c in os.listdir(self.__IPv4_BASE_PATH) + os.listdir(self.__IPv6_BASE_PATH):
-            country_set.add(c)
+        country_set = Utils.get_all_country_code()
 
+        file_suffix = ".cidr"
         data = {}
         for c in country_set:
-            temp = {"country_code": c[0:2]}
-            ipv4_info = self.cal_file_hash(self.__IPv4_BASE_PATH + c)
-            ipv6_info = self.cal_file_hash(self.__IPv6_BASE_PATH + c)
+            temp = {"country_code": c}
+            ipv4_info = self.cal_file_hash(self.__IPv4_BASE_PATH + c + file_suffix)
+            ipv6_info = self.cal_file_hash(self.__IPv6_BASE_PATH + c + file_suffix)
             temp["ipv4_info"] = {"md5": ipv4_info[0], "sha256": ipv4_info[1]} if ipv4_info is not None else None
             temp["ipv6_info"] = {"md5": ipv6_info[0], "sha256": ipv6_info[1]} if ipv6_info is not None else None
             data[c[0:2]] = temp
@@ -74,7 +75,7 @@ class GitRepo:
         try:
             for k, v in data.items():  # k: country_code, v: data
                 json_data = json.dumps(v)
-                if db.update_data("cidr_git_repo", k, json_data):
+                if db.update_cidr_git_repo(k, json_data):
                     updated_list.append(k)
             db.connection.commit()
         except sqlite3.Error as e:

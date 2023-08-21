@@ -25,17 +25,26 @@ class CIDR2IP:
     def read_cidr_file(self):
         ipv4_path = self.__IPv4_BASE_PATH + self.country_code + ".cidr"
         ipv6_path = self.__IPv6_BASE_PATH + self.country_code + ".cidr"
-        with open(ipv4_path, "r") as reader:
-            self.ipv4_cidrs = [line.strip() for line in reader]
-        with open(ipv6_path, "r") as reader:
-            self.ipv6_cidrs = [line.strip() for line in reader]
+        try:
+            with open(ipv4_path, "r") as reader:
+                self.ipv4_cidrs = [line.strip() for line in reader]
+        except FileNotFoundError as e:
+            print(e)
 
-    def check_ipv4(self):
-        print("Start parsing IPv4 CIDR for country {}...".format(self.country_code.capitalize()))
-        for cidr in tqdm(self.ipv4_cidrs):
-            self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv4Network(cidr)]
+        try:
+            with open(ipv6_path, "r") as reader:
+                self.ipv6_cidrs = [line.strip() for line in reader]
+        except FileNotFoundError as e:
+            print(e)
 
-    def check_ip6(self):
-        print("Start parsing IPv6 CIDR for country {}...".format(self.country_code.capitalize()))
-        for cidr in tqdm(self.ipv6_cidrs):
-            self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]
+
+def cal_ipv4(self):
+    print("Start parsing IPv4 CIDR for country {}...".format(self.country_code.capitalize()))
+    for cidr in tqdm(self.ipv4_cidrs):
+        self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv4Network(cidr)]
+
+
+def cal_ipv6(self):
+    print("Start parsing IPv6 CIDR for country {}...".format(self.country_code.capitalize()))
+    for cidr in tqdm(self.ipv6_cidrs):
+        self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]

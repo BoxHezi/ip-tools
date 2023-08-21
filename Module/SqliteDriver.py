@@ -26,24 +26,23 @@ class DB:
     def get_cursor(self):
         return self.cursor if self.cursor is not None else None
 
-    def update_data(self, table: str, *data: str):
+    def update_cidr_git_repo(self, *data: str):
         """
-        :param table: table name to be inserted to
         :param data:  data to be inserted to, data[0] country_code, data[1] data
         """
         last_updated = strftime("%Y-%m-%d %H:%M:%S")
-        select_query = "SELECT country_code, data FROM {} WHERE country_code = ?".format(table)
+        select_query = "SELECT country_code, data FROM cidr_git_repo WHERE country_code = ?"
         self.cursor.execute(select_query, (data[0],))
         value = self.cursor.fetchone()  # if not None, value[0] = country_code, value[1] = data
 
         if value is None or len(value) == 0:
-            insert_query = "INSERT INTO {}(country_code, data, last_updated) VALUES (?, ?, ?)".format(table)
+            insert_query = "INSERT INTO cidr_git_repo(country_code, data, last_updated) VALUES (?, ?, ?)"
             self.cursor.execute(insert_query, (data[0], data[1], last_updated))
             return True
         else:
             v = value[1]
             if v != data[1]:
-                update_query = "UPDATE {} SET data = ?, last_updated = ? WHERE country_code = ?".format(table)
+                update_query = "UPDATE cidr_git_repo SET data = ?, last_updated = ? WHERE country_code = ?"
                 self.cursor.execute(update_query, (data[1], last_updated, data[0],))
                 return True
             return False
