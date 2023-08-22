@@ -2,7 +2,6 @@ import os
 import sqlite3
 
 import git
-import hashlib
 import json
 
 import Module.Utils as Utils
@@ -59,10 +58,12 @@ class GitRepo:
         data = {}
         for c in country_set:
             temp = {"country_code": c}
-            ipv4_info = self.cal_file_hash(self.__IPv4_BASE_PATH + c + file_suffix)
-            ipv6_info = self.cal_file_hash(self.__IPv6_BASE_PATH + c + file_suffix)
-            temp["ipv4_info"] = {"md5": ipv4_info[0], "sha256": ipv4_info[1]} if ipv4_info is not None else None
-            temp["ipv6_info"] = {"md5": ipv6_info[0], "sha256": ipv6_info[1]} if ipv6_info is not None else None
+            ipv4_contents = Utils.read_file(self.__IPv4_BASE_PATH + c + file_suffix)
+            ipv6_contents = Utils.read_file(self.__IPv6_BASE_PATH + c + file_suffix)
+            ipv4_hashes = Utils.cal_hash(",".join(ipv4_contents).encode()) if ipv4_contents is not None else None
+            ipv6_hashes = Utils.cal_hash(",".join(ipv6_contents).encode()) if ipv6_contents is not None else None
+            temp["ipv4_info"] = {"md5": ipv4_hashes[0], "sha256": ipv4_hashes[1]} if ipv4_hashes is not None else None
+            temp["ipv6_info"] = {"md5": ipv6_hashes[0], "sha256": ipv6_hashes[1]} if ipv6_hashes is not None else None
             data[c[0:2]] = temp
 
         return self.store_data(data)
@@ -84,15 +85,3 @@ class GitRepo:
         finally:
             del db
             return updated_list
-
-    @staticmethod
-    def cal_file_hash(file_path) -> tuple | None:
-        try:
-            with open(file_path, "r") as reader:
-                temp = [line.strip() for line in reader]
-                md5 = hashlib.md5(",".join(temp).encode()).hexdigest()
-                sha256 = hashlib.sha256(",".join(temp).encode()).hexdigest()
-                return md5, sha256
-        except FileNotFoundError:
-            print("File {} not found".format(file_path))
-            return None

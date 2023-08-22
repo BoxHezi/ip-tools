@@ -1,8 +1,11 @@
 # ref: https://ipapi.is/developers.html
 # ref: https://github.com/ipapi-is/ipapi
 # ref: https://internetdb.shodan.io/
-
+import hashlib
 import os
+import pickle
+import zlib
+
 import requests
 from time import strftime
 
@@ -35,5 +38,46 @@ def get_all_country_code():
     return list(country_set)
 
 
+def read_file(file_path: str, binary: bool = False) -> list | None:
+    """
+    read file content and return a list of file contents, separate by newline
+    :param file_path: path to file to be read
+    :param binary: reading in binary mode, False by default
+    :return: file contents, None if file not found
+    """
+    try:
+        with open(file_path, "r" if not binary else "rb") as reader:
+            return [line.strip() for line in reader]
+    except FileNotFoundError as e:
+        print(e)
+        return None
+
+
+def cal_hash(data: bytes):
+    """
+    calculate hash for data
+    return a tuple with length of 2, contains md5 hash and sha256 hash
+    :param data: data to calculate hash for
+    :return: size 2 tuple, (md5, sha256)
+    """
+    return hashlib.md5(data).hexdigest(), hashlib.sha256(data).hexdigest()
+
+
 def get_current_time():
     return strftime("%Y-%m-%d %H:%M:%S")
+
+
+def serialize(obj: object):
+    return pickle.dumps(obj)
+
+
+def deserialize(data: bytes):
+    return pickle.loads(data)
+
+
+def compress(data: bytes):
+    return zlib.compress(data)
+
+
+def decompress(data: bytes):
+    return zlib.decompress(data)

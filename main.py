@@ -51,6 +51,7 @@ def map_cidr_to_ip(countries, ipv6: bool = False):
         if ipv6:
             temp.map_ipv6()
         cidr2ip_handler[temp.country_code] = temp
+        temp.store_data(Utils.compress(Utils.serialize(temp)))
     return cidr2ip_handler
 
 

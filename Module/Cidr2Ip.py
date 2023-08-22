@@ -1,8 +1,6 @@
 #!/usr/local/bin/python3
 import ipaddress
 from tqdm import tqdm
-import pickle
-import zlib
 
 from Module.SqliteDriver import DB
 
@@ -51,10 +49,19 @@ class CIDR2IP:
         for cidr in tqdm(self.ipv6_cidrs):
             self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]
 
-    def serialize_and_compress(self):
-        return zlib.compress(pickle.dumps(self))
-
-    def store_data(self):
+    def store_data(self, data):
         print("Check database database for country {}".format(self.country_code.capitalize()))
         db = DB("./data.db")
-        # TODO: check if table exists
+        # TODO: check if there is database entry for corresponding country_code
+        if not db.check_existence("cidr_ip_mapper", self.country_code):
+            # TODO: insert data to database
+            pass
+
+        # if not db.check_table_existence(self.country_code):
+        #     definition = """
+        #     id INTEGER PRIMARY KEY AUTOINCREMENT,
+        #     cidr_to_ip_obj BLOB,
+        #     last_updated INTEGER DEFAULT (datetime('now', 'localtime'))"""
+        #     db.create_table(self.country_code, definition)  # create table
+        # else:
+        #     pass

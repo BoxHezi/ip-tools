@@ -26,6 +26,17 @@ class DB:
     def get_cursor(self):
         return self.cursor if self.cursor is not None else None
 
+    def create_table(self, table_name, definition):
+        query = "CREATE TABLE {} ({});".format(table_name, definition)
+        self.cursor.execute(query)
+
+    def check_existence(self, table: str, country_code: str):
+        query = "SELECT COUNT(*) FROM {} WHERE country_code = ?".format(table)
+        self.cursor.execute(query, (country_code,))
+        result = self.cursor.fetchone()
+        # print(result)
+        return result[0] != 0
+
     def update_cidr_git_repo(self, *data: str):
         """
         :param data:  data to be inserted to, data[0] country_code, data[1] data
