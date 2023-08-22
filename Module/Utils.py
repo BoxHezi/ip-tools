@@ -60,7 +60,15 @@ def cal_hash(data: bytes):
     :param data: data to calculate hash for
     :return: size 2 tuple, (md5, sha256)
     """
-    return hashlib.md5(data).hexdigest(), hashlib.sha256(data).hexdigest()
+    try:
+        return hashlib.md5(data).hexdigest(), hashlib.sha256(data).hexdigest()
+    except Exception as e:
+        print(e)
+        return None
+
+
+def compare_obj(obj1: bytes, obj2: bytes):
+    return cal_hash(obj1) == cal_hash(obj2)
 
 
 def get_current_time():

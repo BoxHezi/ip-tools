@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 import ipaddress
 from tqdm import tqdm
+from sqlite3 import Error as sql_error
 
 from Module.SqliteDriver import DB
 
@@ -50,18 +51,43 @@ class CIDR2IP:
             self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]
 
     def store_data(self, data):
+        """
+        :param data: serialized and compressed object
+        :return:
+        """
+        has_updated = False
         print("Check database database for country {}".format(self.country_code.capitalize()))
         db = DB("./data.db")
-        # TODO: check if there is database entry for corresponding country_code
-        if not db.check_existence("cidr_ip_mapper", self.country_code):
-            # TODO: insert data to database
-            pass
+        db.begin_transaction()
+        try:
+            has_updated = db.update_cidr_ip_mapper(self, self.country_code, data)
+            db.perform_commit()
+        except sql_error as e:
+            db.perform_rollback()
+            has_updated = False
+            print("Transaction rollback due to error {}".format(e))
+        finally:
+            del db
+            return has_updated
 
-        # if not db.check_table_existence(self.country_code):
-        #     definition = """
-        #     id INTEGER PRIMARY KEY AUTOINCREMENT,
-        #     cidr_to_ip_obj BLOB,
-        #     last_updated INTEGER DEFAULT (datetime('now', 'localtime'))"""
-        #     db.create_table(self.country_code, definition)  # create table
-        # else:
-        #     pass
+
+class Cidr2ipHandler:
+
+    def __init__(self):
+        self.cidr2ips = {}
+        self.updated_list: list[CIDR2IP] = []
+
+    def add_record(self, country_code, record: CIDR2IP):
+        self.cidr2ips[country_code] = record
+
+    def get_all_record(self):
+        return self.cidr2ips
+
+    def get_record_by_country_code(self, country_code):
+        return self.cidr2ips[country_code]
+
+    def add_updated_record(self, record: CIDR2IP):
+        self.updated_list.append(record)
+
+    def clear_updated_list(self):
+        self.updated_list = []

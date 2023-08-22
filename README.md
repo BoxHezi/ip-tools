@@ -9,5 +9,8 @@
   - [ ] git repo info to database
     - [x] store hash into database to detect change
   - [ ] cidr to ip info to database
-    - [ ] store cidr ip mapping in database
+    - [x] store cidr ip mapping in database
     - [ ] check changed ip addresses
+      - partially done, now it is able to detect CIDR change for countries
+      - Need to check changed IP addresses
+- [ ] Add GIT Large File Support for database?

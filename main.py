@@ -4,7 +4,7 @@ import configparser
 import argparse
 
 from Module.GitRepo import GitRepo
-from Module.Cidr2Ip import CIDR2IP
+from Module.Cidr2Ip import CIDR2IP, Cidr2ipHandler
 import Module.Utils as Utils
 
 
@@ -44,14 +44,20 @@ def init_configparser(conf_path: str = "config.conf"):
 
 
 def map_cidr_to_ip(countries, ipv6: bool = False):
-    cidr2ip_handler = {}
+    cidr2ip_handler = Cidr2ipHandler()
     for country in countries:
         temp = CIDR2IP(country)
         temp.map_ipv4()
         if ipv6:
             temp.map_ipv6()
-        cidr2ip_handler[temp.country_code] = temp
-        temp.store_data(Utils.compress(Utils.serialize(temp)))
+        cidr2ip_handler.add_record(country, temp)
+        if temp.store_data(Utils.compress(Utils.serialize(temp))):
+            cidr2ip_handler.add_updated_record(temp)
+
+    if len(cidr2ip_handler.updated_list) != 0:
+        print("Update detected for the following country(s):")
+        for c in cidr2ip_handler.updated_list:
+            print(c.country_code)
     return cidr2ip_handler
 
 

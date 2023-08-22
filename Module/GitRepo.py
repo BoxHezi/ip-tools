@@ -1,5 +1,5 @@
 import os
-import sqlite3
+from sqlite3 import Error as sql_error
 
 import git
 import json
@@ -64,7 +64,7 @@ class GitRepo:
             ipv6_hashes = Utils.cal_hash(",".join(ipv6_contents).encode()) if ipv6_contents is not None else None
             temp["ipv4_info"] = {"md5": ipv4_hashes[0], "sha256": ipv4_hashes[1]} if ipv4_hashes is not None else None
             temp["ipv6_info"] = {"md5": ipv6_hashes[0], "sha256": ipv6_hashes[1]} if ipv6_hashes is not None else None
-            data[c[0:2]] = temp
+            data[c] = temp
 
         return self.store_data(data)
 
@@ -72,15 +72,16 @@ class GitRepo:
     def store_data(data: dict) -> list:
         updated_list = []  # a list to store updated CIDR information
         db = DB("./data.db")
-        db.connection.execute("BEGIN;")
+        db.begin_transaction()
         try:
             for k, v in data.items():  # k: country_code, v: data
                 json_data = json.dumps(v)
                 if db.update_cidr_git_repo(k, json_data):
                     updated_list.append(k)
-            db.connection.commit()
-        except sqlite3.Error as e:
-            db.connection.rollback()
+            db.perform_commit()
+        except sql_error as e:
+            db.perform_rollback()
+            updated_list = []
             print("Transaction rollback due to error {}".format(e))
         finally:
             del db
