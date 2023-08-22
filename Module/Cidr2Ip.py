@@ -1,6 +1,10 @@
 #!/usr/local/bin/python3
 import ipaddress
 from tqdm import tqdm
+import pickle
+import zlib
+
+from Module.SqliteDriver import DB
 
 # REF: https://github.com/herrbischoff/country-ip-blocks
 
@@ -37,14 +41,20 @@ class CIDR2IP:
         except FileNotFoundError as e:
             print(e)
 
+    def map_ipv4(self):
+        print("Start parsing IPv4 CIDR for country {}...".format(self.country_code.capitalize()))
+        for cidr in tqdm(self.ipv4_cidrs):
+            self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv4Network(cidr)]
 
-def cal_ipv4(self):
-    print("Start parsing IPv4 CIDR for country {}...".format(self.country_code.capitalize()))
-    for cidr in tqdm(self.ipv4_cidrs):
-        self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv4Network(cidr)]
+    def map_ipv6(self):
+        print("Start parsing IPv6 CIDR for country {}...".format(self.country_code.capitalize()))
+        for cidr in tqdm(self.ipv6_cidrs):
+            self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]
 
+    def serialize_and_compress(self):
+        return zlib.compress(pickle.dumps(self))
 
-def cal_ipv6(self):
-    print("Start parsing IPv6 CIDR for country {}...".format(self.country_code.capitalize()))
-    for cidr in tqdm(self.ipv6_cidrs):
-        self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]
+    def store_data(self):
+        print("Check database database for country {}".format(self.country_code.capitalize()))
+        db = DB("./data.db")
+        # TODO: check if table exists

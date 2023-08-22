@@ -4,6 +4,7 @@
 
 import os
 import requests
+from time import strftime
 
 IPAPI_API_ENDPOINT = "https://api.ipapi.is/?q="
 SHODAN_INTERNET_DB_ENDPOINT = "https://internetdb.shodan.io/"
@@ -32,3 +33,7 @@ def get_all_country_code():
         country_set.add(country[0:2])
 
     return list(country_set)
+
+
+def get_current_time():
+    return strftime("%Y-%m-%d %H:%M:%S")

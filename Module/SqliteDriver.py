@@ -1,5 +1,5 @@
 import sqlite3
-from time import strftime
+import Module.Utils as Utils
 
 
 class DB:
@@ -30,7 +30,7 @@ class DB:
         """
         :param data:  data to be inserted to, data[0] country_code, data[1] data
         """
-        last_updated = strftime("%Y-%m-%d %H:%M:%S")
+        last_updated = Utils.get_current_time()
         select_query = "SELECT country_code, data FROM cidr_git_repo WHERE country_code = ?"
         self.cursor.execute(select_query, (data[0],))
         value = self.cursor.fetchone()  # if not None, value[0] = country_code, value[1] = data
