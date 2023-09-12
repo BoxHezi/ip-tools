@@ -68,6 +68,7 @@ if __name__ == '__main__':
     if args.git:
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
+        # repo.check_updated_file()
         if repo.has_update():
             updated_country = repo.check_updated_file()
             print(updated_country)

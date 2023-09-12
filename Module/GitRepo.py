@@ -6,6 +6,7 @@ import json
 
 import Module.Utils as Utils
 from Module.SqliteDriver import DB
+from Module.DAO import DataAccess
 
 
 # REF: https://github.com/herrbischoff/country-ip-blocks
@@ -65,6 +66,11 @@ class GitRepo:
             temp["ipv4_info"] = {"md5": ipv4_hashes[0], "sha256": ipv4_hashes[1]} if ipv4_hashes is not None else None
             temp["ipv6_info"] = {"md5": ipv6_hashes[0], "sha256": ipv6_hashes[1]} if ipv6_hashes is not None else None
             data[c] = temp
+
+            # temp = DataAccess.GitRepoData("./data.db", c, None, None)
+            # # print(temp)
+            # temp.retrieve_data_by_country_code()
+            # print(temp)
 
         return self.store_data(data)
 
