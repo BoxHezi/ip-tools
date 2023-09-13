@@ -5,6 +5,7 @@ import hashlib
 import os
 import pickle
 import zlib
+import json
 
 import requests
 from time import strftime
@@ -89,3 +90,11 @@ def compress(data: bytes):
 
 def decompress(data: bytes):
     return zlib.decompress(data)
+
+
+def to_json(data: str):
+    return json.loads(data)
+
+
+def to_str(data: dict):
+    return json.dumps(data)
