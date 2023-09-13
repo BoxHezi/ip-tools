@@ -75,6 +75,7 @@ if __name__ == '__main__':
         has_update = True if len(updated_country) != 0 else False
         if has_update:
             print(updated_country)
+            # TODO: update database
         # if repo.has_update():
         #     updated_country = repo.check_updated_file()
         #     print(updated_country)

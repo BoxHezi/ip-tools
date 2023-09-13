@@ -57,7 +57,7 @@ class GitRepo:
                 print("Pulling from remote...")
                 origin.pull()
 
-        return list(updated_files)
+        return updated_files
 
     def check_updated_file(self):
         """
