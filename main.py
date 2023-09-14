@@ -3,6 +3,7 @@
 import configparser
 import argparse
 
+from Module.SqliteDriver import DB
 from Module.GitRepo import GitRepo
 from Module.Cidr2Ip import CIDR2IP, Cidr2ipHandler
 from Module.DAO import DataAccess
@@ -62,6 +63,24 @@ def map_cidr_to_ip(countries, ipv6: bool = False):
     return cidr2ip_handler
 
 
+def git_repo_to_database(r: GitRepo, db: DB, c_list: list):
+    db_success = True
+    db.begin_transaction()
+    for c in c_list:
+        dao = DataAccess.GitRepoData(db, c)
+        dao.data = r.read_content_and_cal_hash(c)
+        try:
+            r.store_data(db, dao)
+        except sql_error as e:
+            db_success = False
+            print(e)
+            break
+    if db_success:
+        db.perform_commit()
+    else:
+        db.perform_rollback()
+
+
 if __name__ == '__main__':
     args = init_argparse().parse_args()  # init argparse
     config = init_configparser()  # init configparse
@@ -73,25 +92,27 @@ if __name__ == '__main__':
         # print(updated_country)
         # print("=" * 20)
         updated_country = repo.find_updated_files()
+        if args.gf:
+            updated_country = Utils.get_all_country_code()
         has_update = True if len(updated_country) != 0 else False
-        if has_update:
-            print(updated_country)
-            for country_code in updated_country:
-                temp = DataAccess.GitRepoData("./data.db", country_code)
-                temp.data = repo.read_content_and_cal_hash(country_code)
-                print(temp)
-                temp.begin_transaction()
-                try:
-                    if temp.contains_record():
-                        temp.update_db()
-                    else:
-                        temp.insert_into_db()
-                except sql_error as e:
-                    temp.perform_rollback()
-                    print(e)
-                    print("Database NOT updated!")
-                    break
-                temp.perform_commit()
+        git_repo_to_database(repo, DB("./data.db"), updated_country)
+        # if has_update:
+        #     db_success = True
+        #     db = DB("./data.db")
+        #     db.begin_transaction()
+        #     for country_code in updated_country:
+        #         dao = DataAccess.GitRepoData(db, country_code)
+        #         dao.data = repo.read_content_and_cal_hash(country_code)
+        #         try:
+        #             repo.store_data(db, dao)
+        #         except sql_error as e:
+        #             db_success = False
+        #             print(e)
+        #             break
+        #     if db_success:
+        #         db.perform_commit()
+        #     else:
+        #         db.perform_rollback()
         del repo
 
     if args.country is not None:

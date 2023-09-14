@@ -71,11 +71,11 @@ class GitRepo:
         return result
 
     @staticmethod
-    def store_data(dao: DataAccess.GitRepoData):
+    def store_data(db: DB, dao: DataAccess.GitRepoData):
         if dao.contains_record():
-            dao.update_db()
+            dao.update_db(db)
         else:
-            dao.insert_into_db()
+            dao.insert_into_db(db)
 
     # @staticmethod
     # def store_data(data: dict) -> list:
