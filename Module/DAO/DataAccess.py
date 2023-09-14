@@ -21,9 +21,6 @@ class GitRepoData(DB):
         display += "=" * 20
         return display
 
-    def __del__(self):
-        self.connection.close()
-
     def retrieve_data_by_country_code(self):
         query = "SELECT * FROM cidr_git_repo WHERE country_code = ?"
         self.cursor.execute(query, (self.country_code,))
@@ -35,11 +32,14 @@ class GitRepoData(DB):
 
     def insert_into_db(self):
         query = "INSERT INTO cidr_git_repo(country_code, data, last_updated) VALUES (?, ?, ?)"
-        self.cursor.execute(query, (self.country_code, self.data, Utils.get_current_time(),))
+        self.cursor.execute(query, (self.country_code, Utils.to_str(self.data), Utils.get_current_time(),))
 
     def update_db(self):
         query = "UPDATE cidr_git_repo SET data = ?, last_updated = ? WHERE country_code = ?"
-        self.cursor.execute(query, (self.data, Utils.get_current_time(), self.country_code,))
+        self.cursor.execute(query, (Utils.to_str(self.data), Utils.get_current_time(), self.country_code,))
 
     def has_update(self, data):
         return self.data != data
+
+    def contains_record(self):
+        return self.data is not None

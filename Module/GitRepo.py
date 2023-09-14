@@ -59,36 +59,6 @@ class GitRepo:
 
         return updated_files
 
-    def check_updated_file(self):
-        """
-        check which files are updated
-        store hash in database
-        """
-        country_set = Utils.get_all_country_code()
-
-        updated_country = []
-        db_data = {}
-        data = {}
-        for country_code in country_set:
-            data[country_code] = self.read_content_and_cal_hash(country_code)
-
-            temp = DataAccess.GitRepoData("./data.db", country_code, None, None)
-            # print(temp)
-            # print(data[c])
-            db_data[country_code] = temp
-            if temp.has_update(data[country_code]):
-                updated_country.append(country_code)
-
-        for country in updated_country:
-            # print(data[country])
-            # print(db_data[country])
-            # print("\n")
-            # TODO: update database
-            pass
-
-        return updated_country
-        # return self.store_data(data)
-
     def read_content_and_cal_hash(self, country_code):
         file_suffix = ".cidr"
         result = {"country_code": country_code}
@@ -101,20 +71,27 @@ class GitRepo:
         return result
 
     @staticmethod
-    def store_data(data: dict) -> list:
-        updated_list = []  # a list to store updated CIDR information
-        db = DB("./data.db")
-        db.begin_transaction()
-        try:
-            for k, v in data.items():  # k: country_code, v: data
-                json_data = json.dumps(v)
-                if db.update_cidr_git_repo(k, json_data):
-                    updated_list.append(k)
-            db.perform_commit()
-        except sql_error as e:
-            db.perform_rollback()
-            updated_list = []
-            print("Transaction rollback due to error {}".format(e))
-        finally:
-            del db
-            return updated_list
+    def store_data(dao: DataAccess.GitRepoData):
+        if dao.contains_record():
+            dao.update_db()
+        else:
+            dao.insert_into_db()
+
+    # @staticmethod
+    # def store_data(data: dict) -> list:
+    #     updated_list = []  # a list to store updated CIDR information
+    #     db = DB("./data.db")
+    #     db.begin_transaction()
+    #     try:
+    #         for k, v in data.items():  # k: country_code, v: data
+    #             json_data = json.dumps(v)
+    #             if db.update_cidr_git_repo(k, json_data):
+    #                 updated_list.append(k)
+    #         db.perform_commit()
+    #     except sql_error as e:
+    #         db.perform_rollback()
+    #         updated_list = []
+    #         print("Transaction rollback due to error {}".format(e))
+    #     finally:
+    #         del db
+    #         return updated_list

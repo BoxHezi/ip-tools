@@ -5,21 +5,22 @@ import argparse
 
 from Module.GitRepo import GitRepo
 from Module.Cidr2Ip import CIDR2IP, Cidr2ipHandler
+from Module.DAO import DataAccess
 import Module.Utils as Utils
+
+from sqlite3 import Error as sql_error
 
 
 def init_argparse():
     arg = argparse.ArgumentParser(description="IP Tools", formatter_class=argparse.RawTextHelpFormatter)
     arg.add_argument("-g", "--git", help="Clone git repo to local or check git local repo update", action="store_true")
+    arg.add_argument("-gf", help="Force to run git repo check", action="store_true")
     arg.add_argument("-c", "--country",
                      help="country code for CIDR to IP function\n"
                           "when providing country code, CIDR to IP function will be enabled\n"
                           "support multiple country code, separate by space, e.g. -c au us nz, default set to au\n"
                           "use -c- for all country",
                      nargs="*")
-    # arg.add_argument("-i4", "--ipv4",
-    #                  help="Enable CIDR to IP for ipv4 addresses, enabled by default",
-    #                  action="store_true", default=True)
     arg.add_argument("-t6",
                      help="Enable CIDR to IP for ipv6 addresses, disabled by default",
                      action="store_true", default=False)
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     args = init_argparse().parse_args()  # init argparse
     config = init_configparser()  # init configparse
 
-    if args.git:
+    if args.git or args.gf:
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
         # updated_country = repo.check_updated_file()
@@ -75,10 +76,22 @@ if __name__ == '__main__':
         has_update = True if len(updated_country) != 0 else False
         if has_update:
             print(updated_country)
-            # TODO: update database
-        # if repo.has_update():
-        #     updated_country = repo.check_updated_file()
-        #     print(updated_country)
+            for country_code in updated_country:
+                temp = DataAccess.GitRepoData("./data.db", country_code)
+                temp.data = repo.read_content_and_cal_hash(country_code)
+                print(temp)
+                temp.begin_transaction()
+                try:
+                    if temp.contains_record():
+                        temp.update_db()
+                    else:
+                        temp.insert_into_db()
+                except sql_error as e:
+                    temp.perform_rollback()
+                    print(e)
+                    print("Database NOT updated!")
+                    break
+                temp.perform_commit()
         del repo
 
     if args.country is not None:
