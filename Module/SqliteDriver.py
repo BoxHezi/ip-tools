@@ -35,10 +35,6 @@ class DB:
     def perform_rollback(self):
         self.connection.rollback()
 
-    def create_table(self, table_name, definition):
-        query = "CREATE TABLE {} ({});".format(table_name, definition)
-        self.cursor.execute(query)
-
     def check_existence(self, table: str, country_code: str):
         """
         check if a table has given country_code, to determine if database include the data of given country_code
@@ -50,26 +46,6 @@ class DB:
         self.cursor.execute(query, (country_code,))
         result = self.cursor.fetchone()
         return result[0] != 0
-
-    def update_cidr_git_repo(self, *data: str):
-        """
-        :param data:  data to be inserted to, data[0] country_code, data[1] data
-        """
-        select_query = "SELECT country_code, data FROM cidr_git_repo WHERE country_code = ?"
-        self.cursor.execute(select_query, (data[0],))
-        value = self.cursor.fetchone()  # if not None, value[0] = country_code, value[1] = data
-
-        if value is None or len(value) == 0:
-            insert_query = "INSERT INTO cidr_git_repo(country_code, data, last_updated) VALUES (?, ?, ?)"
-            self.cursor.execute(insert_query, (data[0], data[1], Utils.get_current_time()))
-            return True
-        else:
-            v = value[1]
-            if v != data[1]:
-                update_query = "UPDATE cidr_git_repo SET data = ?, last_updated = ? WHERE country_code = ?"
-                self.cursor.execute(update_query, (data[1], Utils.get_current_time(), data[0],))
-                return True
-            return False
 
     def update_cidr_ip_mapper(self, newly_created_cidr2ip, *data):
         """

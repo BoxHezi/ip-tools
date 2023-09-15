@@ -72,11 +72,8 @@ if __name__ == '__main__':
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
         updated_country = repo.find_updated_files()
-        if args.gf:
-            updated_country = Utils.get_all_country_code()
-        has_update = True if len(updated_country) != 0 else False
-        if has_update:
-            GitRepoService.git_repo_to_database(repo, DB("./data.db"), updated_country)
+        GitRepoService.git_repo_to_database(repo, DB("./data.db"),
+                                            Utils.get_all_country_code() if args.gf else updated_country)
         del repo
 
     if args.country is not None:

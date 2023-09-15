@@ -5,7 +5,6 @@ def init_db_table(config):
     db_path = config["PATH"]
 
     db = DB(db_path)
-    print("CREATE TABLE \"cidr_git_repo\"")
     db.cursor.execute("""create table IF NOT EXISTS cidr_git_repo
 (
     id           integer                                     not null
@@ -16,7 +15,6 @@ def init_db_table(config):
     last_updated TEXT default (datetime('now', 'localtime')) not null
 );""")
 
-    print("CREATE TABLE \"cidr_ip_mapper\"")
     db.cursor.execute("""create table  IF NOT EXISTS cidr_ip_mapper
 (
     id             INTEGER
