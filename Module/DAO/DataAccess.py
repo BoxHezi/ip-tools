@@ -7,8 +7,19 @@ class GitRepoData:
     def __init__(self, db, country_code, data=None, last_updated=None):
         self.db = db
         self.country_code = country_code
+
+        self.db.cursor.execute("""CREATE TABLE IF NOT EXISTS cidr_git_repo
+(
+    id           integer                                     not null
+        constraint cidr_git_repo_pk
+            primary key autoincrement,
+    country_code TEXT(2)                                     not null,
+    data         TEXT                                        not null,
+    last_updated TEXT default (datetime('now', 'localtime')) not null
+);""")
+        self.has_record = False
         if not data:
-            self.retrieve_data_by_country_code(db)
+            self.retrieve_data_by_country_code()
         else:
             self.data = data
             self.last_updated = last_updated
@@ -20,25 +31,25 @@ class GitRepoData:
         display += "=" * 20
         return display
 
-    def retrieve_data_by_country_code(self, db):
+    def retrieve_data_by_country_code(self):
         query = "SELECT * FROM cidr_git_repo WHERE country_code = ?"
-        db.cursor.execute(query, (self.country_code,))
-        result = db.cursor.fetchone()
+        self.db.cursor.execute(query, (self.country_code,))
+        result = self.db.cursor.fetchone()
         if result is not None:
             self.id = result[0]
             self.data = Utils.to_json(result[2])  # str to dict (json)
             self.last_updated = result[3]
+            self.has_record = True
+        else:
+            self.id, self.data, self.last_updated = None, None, None
 
-    def insert_into_db(self, db):
+    def insert_into_db(self):
         query = "INSERT INTO cidr_git_repo(country_code, data, last_updated) VALUES (?, ?, ?)"
-        db.cursor.execute(query, (self.country_code, Utils.to_str(self.data), Utils.get_current_time(),))
+        self.db.cursor.execute(query, (self.country_code, Utils.to_str(self.data), Utils.get_current_time(),))
 
-    def update_db(self, db):
+    def update_db(self):
         query = "UPDATE cidr_git_repo SET data = ?, last_updated = ? WHERE country_code = ?"
-        db.cursor.execute(query, (Utils.to_str(self.data), Utils.get_current_time(), self.country_code,))
+        self.db.cursor.execute(query, (Utils.to_str(self.data), Utils.get_current_time(), self.country_code,))
 
     def has_update(self, data):
         return self.data != data
-
-    def contains_record(self):
-        return self.data is not None

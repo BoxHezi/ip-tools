@@ -6,10 +6,9 @@ import argparse
 from Module.SqliteDriver import DB
 from Module.GitRepo import GitRepo
 from Module.Cidr2Ip import CIDR2IP, Cidr2ipHandler
-from Module.DAO import DataAccess
 import Module.Utils as Utils
 
-from sqlite3 import Error as sql_error
+from Services import GitRepoService
 
 
 def init_argparse():
@@ -63,24 +62,6 @@ def map_cidr_to_ip(countries, ipv6: bool = False):
     return cidr2ip_handler
 
 
-def git_repo_to_database(r: GitRepo, db: DB, c_list: list):
-    db_success = True
-    db.begin_transaction()
-    for c in c_list:
-        dao = DataAccess.GitRepoData(db, c)
-        dao.data = r.read_content_and_cal_hash(c)
-        try:
-            r.store_data(db, dao)
-        except sql_error as e:
-            db_success = False
-            print(e)
-            break
-    if db_success:
-        db.perform_commit()
-    else:
-        db.perform_rollback()
-
-
 if __name__ == '__main__':
     args = init_argparse().parse_args()  # init argparse
     config = init_configparser()  # init configparse
@@ -95,7 +76,8 @@ if __name__ == '__main__':
         if args.gf:
             updated_country = Utils.get_all_country_code()
         has_update = True if len(updated_country) != 0 else False
-        git_repo_to_database(repo, DB("./data.db"), updated_country)
+        if has_update:
+            GitRepoService.git_repo_to_database(repo, DB("./data.db"), updated_country)
         # if has_update:
         #     db_success = True
         #     db = DB("./data.db")

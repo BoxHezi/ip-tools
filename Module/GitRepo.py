@@ -1,12 +1,6 @@
 import os
-from sqlite3 import Error as sql_error
-
 import git
-import json
-
 import Module.Utils as Utils
-from Module.SqliteDriver import DB
-from Module.DAO import DataAccess
 
 
 # REF: https://github.com/herrbischoff/country-ip-blocks
@@ -70,12 +64,12 @@ class GitRepo:
         result["ipv6_info"] = {"md5": ipv6_hashes[0], "sha256": ipv6_hashes[1]} if ipv6_hashes else None
         return result
 
-    @staticmethod
-    def store_data(db: DB, dao: DataAccess.GitRepoData):
-        if dao.contains_record():
-            dao.update_db(db)
-        else:
-            dao.insert_into_db(db)
+    # @staticmethod
+    # def store_data(db: DB, dao: DataAccess.GitRepoData):
+    #     if dao.contains_record():
+    #         dao.update_db(db)
+    #     else:
+    #         dao.insert_into_db(db)
 
     # @staticmethod
     # def store_data(data: dict) -> list:
