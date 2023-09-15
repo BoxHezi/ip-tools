@@ -7,16 +7,6 @@ class GitRepoData:
     def __init__(self, db, country_code, data=None, last_updated=None):
         self.db = db
         self.country_code = country_code
-
-        self.db.cursor.execute("""CREATE TABLE IF NOT EXISTS cidr_git_repo
-(
-    id           integer                                     not null
-        constraint cidr_git_repo_pk
-            primary key autoincrement,
-    country_code TEXT(2)                                     not null,
-    data         TEXT                                        not null,
-    last_updated TEXT default (datetime('now', 'localtime')) not null
-);""")
         self.has_record = False
         if not data:
             self.retrieve_data_by_country_code()

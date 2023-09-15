@@ -8,7 +8,7 @@ from Module.GitRepo import GitRepo
 from Module.Cidr2Ip import CIDR2IP, Cidr2ipHandler
 import Module.Utils as Utils
 
-from Services import GitRepoService
+from Services import GitRepoService, DatabaseInitService
 
 
 def init_argparse():
@@ -66,35 +66,17 @@ if __name__ == '__main__':
     args = init_argparse().parse_args()  # init argparse
     config = init_configparser()  # init configparse
 
+    DatabaseInitService.init_db_table(config["DATABASE"])
+
     if args.git or args.gf:
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
-        # updated_country = repo.check_updated_file()
-        # print(updated_country)
-        # print("=" * 20)
         updated_country = repo.find_updated_files()
         if args.gf:
             updated_country = Utils.get_all_country_code()
         has_update = True if len(updated_country) != 0 else False
         if has_update:
             GitRepoService.git_repo_to_database(repo, DB("./data.db"), updated_country)
-        # if has_update:
-        #     db_success = True
-        #     db = DB("./data.db")
-        #     db.begin_transaction()
-        #     for country_code in updated_country:
-        #         dao = DataAccess.GitRepoData(db, country_code)
-        #         dao.data = repo.read_content_and_cal_hash(country_code)
-        #         try:
-        #             repo.store_data(db, dao)
-        #         except sql_error as e:
-        #             db_success = False
-        #             print(e)
-        #             break
-        #     if db_success:
-        #         db.perform_commit()
-        #     else:
-        #         db.perform_rollback()
         del repo
 
     if args.country is not None:
