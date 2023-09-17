@@ -67,7 +67,6 @@ class CIDR2IP:
             has_updated = False
             print("Transaction rollback due to error {}".format(e))
         finally:
-            del db
             return has_updated
 
 

@@ -62,13 +62,7 @@ class DB:
             search_query = "SELECT country_code, cidr_to_ip_obj FROM cidr_ip_mapper WHERE country_code = ?"
             self.cursor.execute(search_query, (data[0],))
             result = self.cursor.fetchone()
-            # print(Utils.cal_hash(Utils.compress(Utils.serialize(new_calculated_data))))
-            # print(Utils.cal_hash(result[1]))
-            # print(Utils.deserialize(Utils.decompress(cidr2ip_obj_from_db)))
-            # print(new_calculated_data)
 
-            # using cal_hash to compare, since the newly created CIDR2IP instance and data from db have
-            # different reference even if they hold exact the same value
             if Utils.compare_obj(Utils.compress(Utils.serialize(newly_created_cidr2ip)), result[1]):
                 print("No cidr and/or ip addresses change for country {}".format(data[0]))
                 return False

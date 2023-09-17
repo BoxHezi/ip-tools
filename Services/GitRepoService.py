@@ -1,6 +1,6 @@
 from Module.GitRepo import GitRepo
 from Module.SqliteDriver import DB
-from Module.DAO.DataAccess import GitRepoData
+from Module.DAO.GitRepoDAO import GitRepoData
 
 from sqlite3 import Error as sql_error
 
@@ -23,4 +23,3 @@ def git_repo_to_database(repo: GitRepo, db: DB, country_list: list):
             db.perform_rollback()
             return
     db.perform_commit()
-    del db
