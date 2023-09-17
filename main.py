@@ -17,7 +17,6 @@ def init_argparse():
     arg.add_argument("-gf", help="Force to run git repo check", action="store_true")
     arg.add_argument("-c", "--country",
                      help="country code for CIDR to IP function\n"
-                          "when providing country code, CIDR to IP function will be enabled\n"
                           "support multiple country code, separate by space, e.g. -c au us nz, default set to au\n"
                           "use -c- for all country",
                      nargs="*")

@@ -1,3 +1,6 @@
+import Module.Utils as Utils
+
+
 class Cidr2IpData:
     __TABLE_NAME = "cidr_ip_mapper"
 
@@ -18,6 +21,7 @@ class Cidr2IpData:
         if result is not None:
             self.id = result[0]
             self.cidr_to_ip_obj = result[2]
+            print(type(self.cidr_to_ip_obj))
             self.last_updated = result[3]
         else:
             self.id, self.cidr_to_ip_obj, self.last_updated = None, None, None

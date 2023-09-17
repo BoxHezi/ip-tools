@@ -1,6 +1,6 @@
 from Module.GitRepo import GitRepo
 from Module.SqliteDriver import DB
-from Module.DAO.DataAccess import GitRepoData
+from Module.DAO.GitRepoDAO import GitRepoData
 
 from sqlite3 import Error as sql_error
 
