@@ -1,11 +1,23 @@
 import Module.Utils as Utils
+from Module.SqliteDriver import DB
 
 
-class GitRepoData:
+class BaseDAO:
+    def __init__(self, db: DB):
+        self.db = db
+
+    def __del__(self):
+        self.db.connection.close()
+
+    def __repr__(self):
+        return "Database connection: {}".format(self.db)
+
+
+class GitRepoData(BaseDAO):
     __TABLE_NAME = "cidr_git_repo"
 
-    def __init__(self, db, country_code, data=None, last_updated=None):
-        self.db = db
+    def __init__(self, db: DB, country_code, data=None, last_updated=None):
+        super().__init__(db)
         self.country_code = country_code
         self.has_record = False
         if not data:
@@ -43,3 +55,28 @@ class GitRepoData:
 
     def has_update(self, data):
         return self.data != data
+
+
+class Cidr2IpData(BaseDAO):
+    __TABLE_NAME = "cidr_ip_mapper"
+
+    def __init__(self, db: DB, country_code, obj=None, last_updated=None):
+        super().__init__(db)
+        self.country_code = country_code
+        if not obj:
+            self.retrieve_data_by_country_code()
+        else:
+            self.cidr_to_ip_obj = obj
+            self.last_updated = last_updated
+            self.id = None
+
+    def retrieve_data_by_country_code(self):
+        query = "SELECT * FROM cidr_ip_mapper WHERE country_code = ?"
+        self.db.cursor.execute(query, (self.country_code,))
+        result = self.db.cursor.fetchone()
+        if result is not None:
+            self.id = result[0]
+            self.cidr_to_ip_obj = result[2]
+            self.last_updated = result[3]
+        else:
+            self.id, self.cidr_to_ip_obj, self.last_updated = None, None, None
