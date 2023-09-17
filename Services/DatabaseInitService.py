@@ -23,5 +23,3 @@ def init_db_table(config):
     cidr_to_ip_obj BLOB,
     last_updated   TEXT default (datetime('now', 'localtime'))
 );""")
-
-    del db

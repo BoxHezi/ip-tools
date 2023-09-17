@@ -43,7 +43,7 @@ class GitRepo:
         else:
             print("Git repo update detected")
             # find all files from new pushes
-            for item in self.repo.index.diff(origin.refs.master.commit.hexsha):
+            for item in self.repo.index.diff(remote_hash):
                 updated_country = item.a_path[5:7]
                 if updated_country not in updated_files:
                     updated_files.append(updated_country)
@@ -63,29 +63,3 @@ class GitRepo:
         result["ipv4_info"] = {"md5": ipv4_hashes[0], "sha256": ipv4_hashes[1]} if ipv4_hashes else None
         result["ipv6_info"] = {"md5": ipv6_hashes[0], "sha256": ipv6_hashes[1]} if ipv6_hashes else None
         return result
-
-    # @staticmethod
-    # def store_data(db: DB, dao: DataAccess.GitRepoData):
-    #     if dao.contains_record():
-    #         dao.update_db(db)
-    #     else:
-    #         dao.insert_into_db(db)
-
-    # @staticmethod
-    # def store_data(data: dict) -> list:
-    #     updated_list = []  # a list to store updated CIDR information
-    #     db = DB("./data.db")
-    #     db.begin_transaction()
-    #     try:
-    #         for k, v in data.items():  # k: country_code, v: data
-    #             json_data = json.dumps(v)
-    #             if db.update_cidr_git_repo(k, json_data):
-    #                 updated_list.append(k)
-    #         db.perform_commit()
-    #     except sql_error as e:
-    #         db.perform_rollback()
-    #         updated_list = []
-    #         print("Transaction rollback due to error {}".format(e))
-    #     finally:
-    #         del db
-    #         return updated_list
