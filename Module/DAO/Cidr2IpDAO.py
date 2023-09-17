@@ -7,6 +7,7 @@ class Cidr2IpData:
     def __init__(self, db, country_code, obj=None, last_updated=None):
         self.db = db
         self.country_code = country_code
+        self.has_record = False
         if not obj:
             self.retrieve_data_by_country_code()
         else:
@@ -21,8 +22,8 @@ class Cidr2IpData:
         if result is not None:
             self.id = result[0]
             self.cidr_to_ip_obj = result[2]
-            print(type(self.cidr_to_ip_obj))
             self.last_updated = result[3]
+            self.has_record = True
         else:
             self.id, self.cidr_to_ip_obj, self.last_updated = None, None, None
 
