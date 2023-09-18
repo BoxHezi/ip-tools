@@ -25,6 +25,7 @@ def cidr_2_ip_to_database(db: DB, cidr2ip_obj: CIDR2IP):
     # TODO: insert/update cidr2ip_obj to database
     # dao = Cidr2IpData(db, Utils.compress(Utils.serialize(cidr2ip_obj)))
     dao = obj_2_dao(db, cidr2ip_obj)
+    # print(dao)
     if dao.has_record:
         dao.update_db()
     else:

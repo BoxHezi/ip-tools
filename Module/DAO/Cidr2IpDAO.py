@@ -15,6 +15,11 @@ class Cidr2IpData:
             self.last_updated = last_updated
             self.id = None
 
+    def __repr__(self):
+        return """Country code: {}\nSize of Obj: {} bytes\nLast Updated: {}\n""".format(self.country_code,
+                                                                                        len(self.cidr_to_ip_obj) / 1024,
+                                                                                        self.last_updated)
+
     def retrieve_data_by_country_code(self):
         query = "SELECT * FROM cidr_ip_mapper WHERE country_code = ?"
         self.db.cursor.execute(query, (self.country_code,))
