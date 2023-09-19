@@ -1,9 +1,6 @@
 #!/usr/local/bin/python3
 import ipaddress
 from tqdm import tqdm
-from sqlite3 import Error as sql_error
-
-from Module.SqliteDriver import DB
 
 # REF: https://github.com/herrbischoff/country-ip-blocks
 
@@ -41,33 +38,33 @@ class CIDR2IP:
             print(e)
 
     def map_ipv4(self):
-        print("Start parsing IPv4 CIDR for country {}...".format(self.country_code.capitalize()))
+        print("Start parsing IPv4 CIDR for country {}...".format(self.country_code))
         for cidr in tqdm(self.ipv4_cidrs):
             self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv4Network(cidr)]
 
     def map_ipv6(self):
-        print("Start parsing IPv6 CIDR for country {}...".format(self.country_code.capitalize()))
+        print("Start parsing IPv6 CIDR for country {}...".format(self.country_code))
         for cidr in tqdm(self.ipv6_cidrs):
             self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]
 
-    def store_data(self, data):
-        """
-        :param data: serialized and compressed object
-        :return:
-        """
-        has_updated = False
-        print("Check database database for country {}".format(self.country_code.capitalize()))
-        db = DB("./data.db")
-        db.begin_transaction()
-        try:
-            has_updated = db.update_cidr_ip_mapper(self, self.country_code, data)
-            db.perform_commit()
-        except sql_error as e:
-            db.perform_rollback()
-            has_updated = False
-            print("Transaction rollback due to error {}".format(e))
-        finally:
-            return has_updated
+    # def store_data(self, data):
+    #     """
+    #     :param data: serialized and compressed object
+    #     :return:
+    #     """
+    #     has_updated = False
+    #     print("Check database database for country {}".format(self.country_code.capitalize()))
+    #     db = DB("./data.db")
+    #     db.begin_transaction()
+    #     try:
+    #         has_updated = db.update_cidr_ip_mapper(self, self.country_code, data)
+    #         db.perform_commit()
+    #     except sql_error as e:
+    #         db.perform_rollback()
+    #         has_updated = False
+    #         print("Transaction rollback due to error {}".format(e))
+    #     finally:
+    #         return has_updated
 
 
 class Cidr2ipHandler:

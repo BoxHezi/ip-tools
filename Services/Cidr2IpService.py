@@ -17,32 +17,38 @@ def obj_2_dao(db: DB, cidr2ip: CIDR2IP) -> Cidr2IpData:
     :param cidr2ip:  CIDR2IP instance
     :return: Cidr2IpData instance
     """
-    # TODO: convert CIDR2IP instance to Cidr2IpData in order to store in database
     return Cidr2IpData(db, cidr2ip.country_code, Utils.compress(Utils.serialize(cidr2ip)), Utils.get_current_time())
 
 
 def cidr_2_ip_to_database(db: DB, cidr2ip_obj: CIDR2IP):
-    # TODO: insert/update cidr2ip_obj to database
-    # dao = Cidr2IpData(db, Utils.compress(Utils.serialize(cidr2ip_obj)))
+    """
+    inesrt cidr_2_ip information into database
+    :param db: database connection reference
+    :param cidr2ip_obj: CIDR2IP instance
+    :return: Cidr2IpData instance if there is update (new record or updated record); None otherwise
+    """
     dao = obj_2_dao(db, cidr2ip_obj)
     # print(dao)
+    # print(dao.has_record)
+    # print("Has Update:", dao.has_update())
+    updated = dao.has_update()
     if dao.has_record:
-        dao.update_db()
+        if updated:
+            dao.update_db()
     else:
         dao.insert_into_db()
-
+    return dao if updated else None
 
 def cidr_to_ip_mapper(db: DB, countries: list, ipv6: bool = False):
     cidr2ip_handler = Cidr2ipHandler()
+    db.begin_transaction()
     for country in countries:
         temp = CIDR2IP(country)
         temp.map_ipv4()
         if ipv6:
             temp.map_ipv6()
         cidr2ip_handler.add_record(country, temp)
-        # TODO: add data to database
-        cidr_2_ip_to_database(db, temp)
-        # if has_update:
-        #     # TODO: add to cidr2ip_handler.updated_list
-        #     cidr2ip_handler.add_updated_record(temp)
-        #     pass
+        result = cidr_2_ip_to_database(db, temp)
+        if result is not None:
+            cidr2ip_handler.add_updated_record(temp)  # add to updated_record list if there is update
+    db.perform_commit()
