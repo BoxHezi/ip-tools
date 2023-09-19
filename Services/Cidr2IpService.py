@@ -6,8 +6,12 @@ import Module.Utils as Utils
 
 
 def dao_2_obj(dao: Cidr2IpData) -> CIDR2IP:
-    # TODO: convert Cidr2IpData to CIDR2IP object
-    pass
+    """
+    convert Cidr2IpData (DAO) back to CIDR2IP instance
+    :param dao: Cidr2IpData instance
+    :return: CIDR2IP instance
+    """
+    return Utils.deserialize(Utils.decompress(dao.cidr_to_ip_obj))
 
 
 def obj_2_dao(db: DB, cidr2ip: CIDR2IP) -> Cidr2IpData:
@@ -38,6 +42,7 @@ def cidr_2_ip_to_database(db: DB, cidr2ip_obj: CIDR2IP):
     else:
         dao.insert_into_db()
     return dao if updated else None
+
 
 def cidr_to_ip_mapper(db: DB, countries: list, ipv6: bool = False):
     cidr2ip_handler = Cidr2ipHandler()

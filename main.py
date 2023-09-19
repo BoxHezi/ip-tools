@@ -82,7 +82,8 @@ if __name__ == '__main__':
         else:
             country_list = Utils.get_all_country_code()
         # cidr_to_ip_handler = map_cidr_to_ip(country_list)
-        Cidr2IpService.cidr_to_ip_mapper(DB("./data.db"), country_list)
+        # Cidr2IpService.cidr_to_ip_mapper(DB("./data.db"), country_list)
+        Cidr2IpService.get_all_dao(DB("./data.db"), country_list)
 
     if args.ip:
         for i in args.ip:
