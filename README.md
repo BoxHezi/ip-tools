@@ -3,10 +3,14 @@
 ## TODO
 
 - [x] cidr to ip function
-- [x] ip and asn query function, ref: https://ipapi.is/developers.html
-- [x] ip lookups, for open ports and vulnerabilities, ref: https://internetdb.shodan.io/
+- [ ] ip and asn query function, ref: https://ipapi.is/developers.html
+  - [x] single ip or asn
+  - [ ] Add support for IP ranges
+- [ ] ip lookups, for open ports and vulnerabilities, ref: https://internetdb.shodan.io/
+  - [x] single ip
+  - [ ] Add support for IP ranges
 - [ ] result to json, database, etc
-  - [ ] git repo info to database
+  - [x] git repo info to database
     - [x] store hash into database to detect change
   - [ ] cidr to ip info to database
     - [x] store cidr ip mapping in database
