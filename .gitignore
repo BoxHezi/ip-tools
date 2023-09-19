@@ -2,5 +2,5 @@
 __pycache__/
 country-ip-blocks/
 *.eddx
-data.db
+*.db
 .DS_Store
