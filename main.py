@@ -8,7 +8,7 @@ from Module.GitRepo import GitRepo
 from Module.Cidr2Ip import CIDR2IP, Cidr2ipHandler
 import Module.Utils as Utils
 
-from Services import DatabaseInitService, GitRepoService, Cidr2IpService
+from Services import DatabaseInitService, GitRepoService, Cidr2IpService, InternetDBService
 
 
 def init_argparse():
@@ -31,8 +31,8 @@ def init_argparse():
                                          "support multiple ASN query, separate using space, e.g. -a 23500 23501 23501",
                      nargs="+")
     arg.add_argument("-inet", "--internetdb", help="Query information from https://internetdb.shodan.io/\n"
-                                                   "support multiple ip, separate using space, e.g. -inet 8.8.8.8 "
-                                                   "51.83.59.99",
+                                                   "support multiple ip and cidr, separate using space, "
+                                                   ":e.g. -inet 8.8.8.8 51.83.59.99 192.168.0.0/24",
                      nargs="+")
     return arg
 
@@ -73,6 +73,5 @@ if __name__ == '__main__':
         for a in args.asn:
             print(Utils.asn_query(str(a)))
 
-    if args.internetdb:
-        for inet in args.internetdb:
-            print(Utils.internet_db_query(str(inet)))
+    if args.internetdb:  # type(internetdb) => list
+        InternetDBService.start_query(DB("./databases/internetdb.db"), args.internetdb)

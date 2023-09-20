@@ -1,6 +1,5 @@
 .idea/
 __pycache__/
 country-ip-blocks/
-*.eddx
 *.db
 .DS_Store

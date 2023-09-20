@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
-import ipaddress
 from tqdm import tqdm
+
+from Module.Utils import cidr2ip
 
 # REF: https://github.com/herrbischoff/country-ip-blocks
 
@@ -40,31 +41,12 @@ class CIDR2IP:
     def map_ipv4(self):
         print("Start parsing IPv4 CIDR for country {}...".format(self.country_code))
         for cidr in tqdm(self.ipv4_cidrs):
-            self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv4Network(cidr)]
+            self.ipv4_ip_dict[cidr] = cidr2ip(cidr)
 
     def map_ipv6(self):
         print("Start parsing IPv6 CIDR for country {}...".format(self.country_code))
         for cidr in tqdm(self.ipv6_cidrs):
-            self.ipv4_ip_dict[cidr] = [str(ip) for ip in ipaddress.IPv6Network(cidr)]
-
-    # def store_data(self, data):
-    #     """
-    #     :param data: serialized and compressed object
-    #     :return:
-    #     """
-    #     has_updated = False
-    #     print("Check database database for country {}".format(self.country_code.capitalize()))
-    #     db = DB("./data.db")
-    #     db.begin_transaction()
-    #     try:
-    #         has_updated = db.update_cidr_ip_mapper(self, self.country_code, data)
-    #         db.perform_commit()
-    #     except sql_error as e:
-    #         db.perform_rollback()
-    #         has_updated = False
-    #         print("Transaction rollback due to error {}".format(e))
-    #     finally:
-    #         return has_updated
+            self.ipv6_ip_dict[cidr] = cidr2ip(cidr, True)
 
 
 class Cidr2ipHandler:
