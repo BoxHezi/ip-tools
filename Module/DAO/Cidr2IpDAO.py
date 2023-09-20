@@ -18,8 +18,9 @@ class Cidr2IpData:
 
     def __repr__(self):
         return """Country code: {}\nHash of Obj: {}\nLast Updated: {}\n""".format(self.country_code,
-                                                                                        hashlib.md5(self.cidr_to_ip_obj).hexdigest(),
-                                                                                        self.last_updated)
+                                                                                  hashlib.md5(
+                                                                                      self.cidr_to_ip_obj).hexdigest(),
+                                                                                  self.last_updated)
 
     def __conatin_record(self):
         query = "SELECT * FROM cidr_ip_mapper WHERE country_code = ?"

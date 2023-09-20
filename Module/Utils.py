@@ -138,3 +138,7 @@ def is_cidr(s: str):
     :return: True if in cidr format, False otherwise
     """
     return "/" in s
+
+
+def list_2_str(ls) -> str:
+    return '' if len(ls) == 0 else ",".join(str(i) for i in ls)
