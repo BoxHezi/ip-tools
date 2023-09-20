@@ -43,24 +43,6 @@ def init_configparser(conf_path: str = "config.conf"):
     return conf
 
 
-# def map_cidr_to_ip(countries, ipv6: bool = False):
-#     cidr2ip_handler = Cidr2ipHandler()
-#     for country in countries:
-#         temp = CIDR2IP(country)
-#         temp.map_ipv4()
-#         if ipv6:
-#             temp.map_ipv6()
-#         cidr2ip_handler.add_record(country, temp)
-#         if temp.store_data(Utils.compress(Utils.serialize(temp))):
-#             cidr2ip_handler.add_updated_record(temp)
-#
-#     if len(cidr2ip_handler.updated_list) != 0:
-#         print("Update detected for the following country(s):")
-#         for c in cidr2ip_handler.updated_list:
-#             print(c.country_code)
-#     return cidr2ip_handler
-
-
 if __name__ == '__main__':
     args = init_argparse().parse_args()  # init argparse
     config = init_configparser()  # init configparse
@@ -81,9 +63,7 @@ if __name__ == '__main__':
             country_list = ["au"] if len(args.country) == 0 else args.country
         else:
             country_list = Utils.get_all_country_code()
-        # cidr_to_ip_handler = map_cidr_to_ip(country_list)
-        # Cidr2IpService.cidr_to_ip_mapper(DB("./data.db"), country_list)
-        Cidr2IpService.get_all_dao(DB("./data.db"), country_list)
+        Cidr2IpService.cidr_to_ip_mapper(DB("./data.db"), country_list)
 
     if args.ip:
         for i in args.ip:

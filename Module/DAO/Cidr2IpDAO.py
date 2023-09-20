@@ -25,9 +25,7 @@ class Cidr2IpData:
         query = "SELECT * FROM cidr_ip_mapper WHERE country_code = ?"
         self.db.cursor.execute(query, (self.country_code,))
         result = self.db.cursor.fetchone()
-        if result is None or len(result) == 0:
-            return False
-        return True
+        return False if result is None or len(result) == 0 else True
 
     def has_update(self):
         # 1. query from database using country_code

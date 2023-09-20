@@ -26,7 +26,7 @@ def obj_2_dao(db: DB, cidr2ip: CIDR2IP) -> Cidr2IpData:
 
 def cidr_2_ip_to_database(db: DB, cidr2ip_obj: CIDR2IP):
     """
-    inesrt cidr_2_ip information into database
+    insert cidr_2_ip information into database
     :param db: database connection reference
     :param cidr2ip_obj: CIDR2IP instance
     :return: Cidr2IpData instance if there is update (new record or updated record); None otherwise
