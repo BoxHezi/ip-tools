@@ -17,11 +17,11 @@ class InternetDBDAO:
 
     def __repr__(self):
         out = f"IP: {Utils.ip_str(self.ip)} "
-        out += f"Hostnames: {'[]' if len(self.hostnames) == 0 else ','.join(self.hostnames)}\n"
-        out += f"Open ports: {'[]' if len(self.ports) == 0 else ','.join(str(p) for p in self.ports)}\n"
-        out += f"CPEs: {'[]' if len(self.cpes) == 0 else ','.join(self.cpes)}\n"
-        out += f"Vulns: {'[]' if len(self.vulns) == 0 else ','.join(self.vulns)}\n"
-        out += f"Tags: {'[]' if len(self.tags) == 0 else ','.join(self.tags)}\n"
+        out += f"Hostnames: {Utils.list_2_str(self.hostnames)}\n"
+        out += f"Open ports: {Utils.list_2_str(self.ports)}\n"
+        out += f"CPEs: {Utils.list_2_str(self.cpes)}\n"
+        out += f"Vulns: {Utils.list_2_str(self.vulns)}\n"
+        out += f"Tags: {Utils.list_2_str(self.tags)}\n"
         return out
 
     def has_record(self):
@@ -39,7 +39,6 @@ class InternetDBDAO:
         self.db.cursor.execute(query, (
             self.ip, self.ip_str, Utils.list_2_str(self.hostnames), Utils.list_2_str(self.ports),
             Utils.list_2_str(self.cpes), Utils.list_2_str(self.vulns), Utils.list_2_str(self.tags),))
-        self.db.perform_commit()
 
     def update_db(self):
         query = """UPDATE internetdb SET hostnames = ?, ports = ?, cpes = ?, vulns = ?, tags = ?, last_updated = ? 
@@ -47,4 +46,3 @@ class InternetDBDAO:
         self.db.cursor.execute(query, (
             Utils.list_2_str(self.hostnames), Utils.list_2_str(self.ports), Utils.list_2_str(self.cpes),
             Utils.list_2_str(self.vulns), Utils.list_2_str(self.tags), Utils.get_current_time(), self.ip,))
-        self.db.perform_commit()

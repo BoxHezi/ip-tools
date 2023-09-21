@@ -50,16 +50,25 @@ def start_query(db: DB, ls: list, ipv6: bool = False):
     :param db: database connection reference
     :param ls: list of IP or CIDR, or both
     :param ipv6: use IPv6 if True. Default set to False
-    :return:
     """
     db_init(db)  # create table if not exists
     ips = ls_to_ips(ls, ipv6)
-    for ip in tqdm(ips):
-        result = Utils.internet_db_query(ip)  # type(result) => json/dict
-        if "ip" not in result:
-            continue
-        dao = InternetDBDAO(db, ip, result)
-        if dao.has_record():
-            dao.update_db()
-        else:
-            dao.insert_into_db()
+    dao_list = []
+    for i in tqdm(range(0, len(ips))):
+        ip = ips[i]
+        try:
+            result = Utils.internet_db_query(ip)  # type(result) => json/dict
+            if "ip" not in result:  # if no detail information available
+                continue
+            dao = InternetDBDAO(db, ip, result)
+            dao_list.append(dao)
+        except Exception as e:
+            print("Error on query {}".format(ip))
+            print(e)
+    result_to_db(db, dao_list)
+
+
+def result_to_db(db: DB, dao_list: list):
+    for dao in dao_list:
+        dao.update_db() if dao.has_record() else dao.insert_into_db()
+        db.perform_commit()

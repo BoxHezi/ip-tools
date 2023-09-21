@@ -140,5 +140,5 @@ def is_cidr(s: str):
     return "/" in s
 
 
-def list_2_str(ls) -> str:
-    return '' if len(ls) == 0 else ",".join(str(i) for i in ls)
+def list_2_str(ls, delimiter: str = ",") -> str:
+    return '' if len(ls) == 0 else delimiter.join(str(i) for i in ls)
