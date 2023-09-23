@@ -37,6 +37,7 @@ def init_argparse():
                                            "require a database path, e.g. -cve ./database/db.db")
     arg.add_argument("-cpe", "--cpe", help="get cpe information from database\n"
                                            "require a database path, e.g. -cpe ./database/db.db")
+    arg.add_argument("--downloaddb", help="download CAPEC and CWE databaes, csv file, store in ./databases directory", action="store_true")
     return arg
 
 
@@ -56,7 +57,7 @@ if __name__ == '__main__':
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
         updated_country = repo.find_updated_files()
-        GitRepoService.git_repo_to_database(repo, DB("./data.db"),
+        GitRepoService.git_repo_to_database(repo, DB(config["DATABASE"]),
                                             Utils.get_all_country_code() if args.gf else updated_country)
         del repo
 
@@ -66,7 +67,7 @@ if __name__ == '__main__':
             country_list = ["au"] if len(args.country) == 0 else args.country
         else:
             country_list = Utils.get_all_country_code()
-        Cidr2IpService.cidr_to_ip_mapper(DB("./data.db"), country_list)
+        Cidr2IpService.cidr_to_ip_mapper(DB(config["DATABASE"]), country_list)
 
     if args.ip:
         for i in args.ip:
@@ -79,9 +80,11 @@ if __name__ == '__main__':
     if args.internetdb:  # type(internetdb) => list
         InternetDBService.start_query(DB("./databases/internetdb.db"), args.internetdb)
 
+    if args.downloaddb:
+        CVECPEService.download_db()
+
     if args.cve:
-        print(args.cve)
-        CVECPEService.search_cve("CVE-2010-3333")
+        CVECPEService.start_cve_search(DB(args.cve))
 
     if args.cpe:
         print(args.cpe)
