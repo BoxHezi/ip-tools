@@ -10,7 +10,7 @@ import Module.Utils as Utils
 import time
 
 import nvdlib
-import ares
+import ares  # python wrapper for https://www.circl.lu/services/cve-search/
 
 
 # NIST NVD CVE API reference: https://nvd.nist.gov/developers/vulnerabilities
