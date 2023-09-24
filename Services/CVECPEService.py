@@ -1,11 +1,9 @@
 import requests
-from http.client import RemoteDisconnected
 
 from zipfile import ZipFile
 from io import BytesIO
 
 from Module.SqliteDriver import DB
-import Module.Utils as Utils
 
 import time
 
@@ -25,26 +23,39 @@ def start_cve_search(db: DB):
     db.cursor.execute(query)
     results = db.cursor.fetchall()
     potential_targets = set()
-    cve_db = ares.CVESearch()
+    cve_search = ares.CVESearch()
+    # checked_cve = {}
     for i in range(len(results)):
         record = results[i]
-        cves = record[5]
-        for cve in cves.split(","):
-            try:
-                cve_result = cve_db.id(cve)
-                print(f"{cve} - CVSS: {cve_result['cvss']}")
-                cvss = cve_result['cvss']
-                if cvss and cvss > 7:
-                    hostnames = record[2].split(",")
-                    potential_targets.update(hostnames)
-            except (ConnectionError, RemoteDisconnected) as e:
-                print(f"Exception: {e}")
-            # except ConnectionError as connect_error:
-            #     print(f"Connection error: {connect_error}")
-            # except RemoteDisconnected as remote_disconnected:
-            #     print(f"Remote Disconnected: {remote_disconnected}")
+        cves = record[5].split(",")
+        if content_high_cve(cve_search, cves):
+            hostnames = record[2].split(",")
+            potential_targets.update(hostnames)
+
+        # for cve in cves.split(","):
+        #     try:
+        #         cve_result = cve_search.id(cve)
+        #         cvss = cve_result['cvss']
+        #         print(f"{cve} - CVSS: {cvss}")
+        #         if cvss and cvss > 7:
+        #             hostnames = record[2].split(",")
+        #             potential_targets.update(hostnames)
+        #     except (ConnectionError, RemoteDisconnected) as e:
+        #         print(f"Exception: {e}")
     return potential_targets
 
+
+def content_high_cve(cve_search: ares.CVESearch, cves: list):
+    for cve in cves:
+        try:
+            cve_result = cve_search.id(cve)
+            cvss = cve_result["cvss"]
+            print(f"{cve} - CVSS: {cvss}")
+            if cvss and cvss > 7:
+                return True
+        except requests.exceptions.ConnectionError as e:
+            print(f"Connection Exception: {e} for CVE: {cve}")
+    return False
 
 # def search_cve(cve_id: str):
 #     # CIRCL_BASE_URL = "https://cve.circl.lu/api/cve/"
