@@ -1,5 +1,5 @@
 import requests
-import pprint
+from http.client import RemoteDisconnected
 
 from zipfile import ZipFile
 from io import BytesIO
@@ -26,16 +26,24 @@ def start_cve_search(db: DB):
     results = db.cursor.fetchall()
     potential_targets = set()
     cve_db = ares.CVESearch()
-    for r in results:
-        cves = r[5]
+    for i in range(len(results)):
+        record = results[i]
+        cves = record[5]
         for cve in cves.split(","):
-            cve_result = cve_db.id(cve)
-            print(f"{cve} - CVSS: {cve_result['cvss']}\n")
-            cvss = cve_result["cvss"]
-            if cvss and cvss > 7:
-                hostnames = r[2].split(",")
-                potential_targets.update(hostnames)
-    return list(potential_targets)
+            try:
+                cve_result = cve_db.id(cve)
+                print(f"{cve} - CVSS: {cve_result['cvss']}")
+                cvss = cve_result['cvss']
+                if cvss and cvss > 7:
+                    hostnames = record[2].split(",")
+                    potential_targets.update(hostnames)
+            except (ConnectionError, RemoteDisconnected) as e:
+                print(f"Exception: {e}")
+            # except ConnectionError as connect_error:
+            #     print(f"Connection error: {connect_error}")
+            # except RemoteDisconnected as remote_disconnected:
+            #     print(f"Remote Disconnected: {remote_disconnected}")
+    return potential_targets
 
 
 # def search_cve(cve_id: str):
