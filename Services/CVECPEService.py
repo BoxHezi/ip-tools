@@ -24,46 +24,36 @@ def start_cve_search(db: DB):
     query = """SELECT * FROM internetdb WHERE vulns != '';"""
     db.cursor.execute(query)
     results = db.cursor.fetchall()
-    serious = []
-    CVE_SEARCH = ares.CVESearch()
+    potential_targets = set()
+    cve_db = ares.CVESearch()
     for r in results:
         cves = r[5]
         for cve in cves.split(","):
-            cve_result = CVE_SEARCH.id(cve)
+            cve_result = cve_db.id(cve)
             print(f"{cve} - CVSS: {cve_result['cvss']}\n")
-            if "msbulletin" in cve_result:
-                print(cve_result["msbulletin"])
-                print(cve_result["msbulletin"][0]["severity"])
-            print("=" * 20)
-            # print(f"CVE: {cve}, CVSS: {cve_result['cvss']}")
-            # cve_results = nvdlib.searchCVE(cveId=cve)
-            # for result in cve_results:
-            #     print(f"CVE: {result.id}, Severity: {result.metrics}")
-            #     print(result.score)
-            #     if "HIGH" in result.score or "CRITICAL" in result.score:
-            #         serious.append(result)
+            cvss = cve_result["cvss"]
+            if cvss and cvss > 7:
+                hostnames = r[2].split(",")
+                potential_targets.update(hostnames)
+    return list(potential_targets)
 
 
-            # time.sleep(6)  # sleep due to rate limit
-            # return
-
-
-def search_cve(cve_id: str):
-    # CIRCL_BASE_URL = "https://cve.circl.lu/api/cve/"
-    NIST_NVD_BASE_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
-    url = f"{NIST_NVD_BASE_URL}?cveId={cve_id}"
-    resp = requests.get(url)
-    resp.raise_for_status()
-    # pprint.pprint(resp.json())
-    return resp.json()
+# def search_cve(cve_id: str):
+#     # CIRCL_BASE_URL = "https://cve.circl.lu/api/cve/"
+#     NIST_NVD_BASE_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
+#     url = f"{NIST_NVD_BASE_URL}?cveId={cve_id}"
+#     resp = requests.get(url)
+#     resp.raise_for_status()
+#     # pprint.pprint(resp.json())
+#     return resp.json()
 
 
 
-def search_cpe(cpe_name: str):
-    pass
+# def search_cpe(cpe_name: str):
+#     pass
 
 
-def download_db():
+def download_local_db():
     download_file("https://capec.mitre.org/data/csv/2000.csv.zip", "capec")
     download_file("https://cwe.mitre.org/data/csv/2000.csv.zip", "cwe")
 
