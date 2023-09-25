@@ -1,12 +1,11 @@
 import requests
-
 from zipfile import ZipFile
 from io import BytesIO
+from tqdm import tqdm
 
 from Module.SqliteDriver import DB
 
-import time
-
+import time  # add time.sleep(6) if query from nvdlib, due to requests rate limitation
 import nvdlib
 import ares  # python wrapper for https://www.circl.lu/services/cve-search/
 
@@ -23,39 +22,38 @@ def start_cve_search(db: DB):
     db.cursor.execute(query)
     results = db.cursor.fetchall()
     potential_targets = set()
+
+    checked_set = set()  # set contains queried CVE
+    checked_high_set = set()  # set contains CVE which above a threshold, (threshold default set to 7)
+
     cve_search = ares.CVESearch()
-    # checked_cve = {}
     for i in range(len(results)):
         record = results[i]
         cves = record[5].split(",")
-        if content_high_cve(cve_search, cves):
-            hostnames = record[2].split(",")
-            potential_targets.update(hostnames)
-
-        # for cve in cves.split(","):
-        #     try:
-        #         cve_result = cve_search.id(cve)
-        #         cvss = cve_result['cvss']
-        #         print(f"{cve} - CVSS: {cvss}")
-        #         if cvss and cvss > 7:
-        #             hostnames = record[2].split(",")
-        #             potential_targets.update(hostnames)
-        #     except (ConnectionError, RemoteDisconnected) as e:
-        #         print(f"Exception: {e}")
-    return potential_targets
+        if contain_high_cve(cve_search, cves, checked_set, checked_high_set):
+            potential_targets.update(record[2].split(","))
+    return list(potential_targets)
 
 
-def content_high_cve(cve_search: ares.CVESearch, cves: list):
-    for cve in cves:
+def contain_high_cve(cve_search: ares.CVESearch, cves: list, checked_set: set, high_set: set, threshold: int = 7):
+    for cve in tqdm(cves):
+        if cve in checked_set:
+            if cve in high_set:
+                return True
+            continue
         try:
-            cve_result = cve_search.id(cve)
-            cvss = cve_result["cvss"]
-            print(f"{cve} - CVSS: {cvss}")
-            if cvss and cvss > 7:
+            cve_info = cve_search.id(cve)
+            cvss = cve_info["cvss"]
+            checked_set.add(cve)
+            if cvss and cvss > threshold:
+                high_set.add(cve)
                 return True
         except requests.exceptions.ConnectionError as e:
             print(f"Connection Exception: {e} for CVE: {cve}")
+        except requests.exceptions.ReadTimeout as e:
+            print(f"Read Timeout: {e} when querying {cve}")
     return False
+
 
 # def search_cve(cve_id: str):
 #     # CIRCL_BASE_URL = "https://cve.circl.lu/api/cve/"
@@ -65,7 +63,6 @@ def content_high_cve(cve_search: ares.CVESearch, cves: list):
 #     resp.raise_for_status()
 #     # pprint.pprint(resp.json())
 #     return resp.json()
-
 
 
 # def search_cpe(cpe_name: str):
