@@ -5,10 +5,9 @@ import argparse
 
 from Module.SqliteDriver import DB
 from Module.GitRepo import GitRepo
-from Module.Cidr2Ip import CIDR2IP, Cidr2ipHandler
 import Module.Utils as Utils
 
-from Services import DatabaseInitService, GitRepoService, Cidr2IpService, InternetDBService
+from Services import DatabaseInitService, GitRepoService, Cidr2IpService, InternetDBService, CVECPEService
 
 
 def init_argparse():
@@ -34,6 +33,11 @@ def init_argparse():
                                                    "support multiple ip and cidr, separate using space, "
                                                    ":e.g. -inet 8.8.8.8 51.83.59.99 192.168.0.0/24",
                      nargs="+")
+    arg.add_argument("-cve", "--cve", help="get cve information from database\n"
+                                           "require a database path, e.g. -cve ./database/db.db")
+    # arg.add_argument("-cpe", "--cpe", help="get cpe information from database\n"
+    #                                        "require a database path, e.g. -cpe ./database/db.db")
+    arg.add_argument("--downloaddb", help="download CAPEC and CWE databaes, csv file, store in ./databases directory", action="store_true")
     return arg
 
 
@@ -53,7 +57,7 @@ if __name__ == '__main__':
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
         updated_country = repo.find_updated_files()
-        GitRepoService.git_repo_to_database(repo, DB("./data.db"),
+        GitRepoService.git_repo_to_database(repo, DB(config["DATABASE"]),
                                             Utils.get_all_country_code() if args.gf else updated_country)
         del repo
 
@@ -63,7 +67,7 @@ if __name__ == '__main__':
             country_list = ["au"] if len(args.country) == 0 else args.country
         else:
             country_list = Utils.get_all_country_code()
-        Cidr2IpService.cidr_to_ip_mapper(DB("./data.db"), country_list)
+        Cidr2IpService.cidr_to_ip_mapper(DB(config["DATABASE"]), country_list)
 
     if args.ip:
         for i in args.ip:
@@ -75,3 +79,13 @@ if __name__ == '__main__':
 
     if args.internetdb:  # type(internetdb) => list
         InternetDBService.start_query(DB("./databases/internetdb.db"), args.internetdb)
+
+    if args.downloaddb:
+        CVECPEService.download_local_db()
+
+    if args.cve:
+        targets = CVECPEService.start_cve_search(DB(args.cve))
+        print(targets)
+
+    # if args.cpe:
+    #     print(args.cpe)

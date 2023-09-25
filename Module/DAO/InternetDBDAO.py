@@ -41,7 +41,7 @@ class InternetDBDAO:
             Utils.list_2_str(self.cpes), Utils.list_2_str(self.vulns), Utils.list_2_str(self.tags),))
 
     def update_db(self):
-        query = """UPDATE internetdb SET hostnames = ?, ports = ?, cpes = ?, vulns = ?, tags = ?, last_updated = ? 
+        query = """UPDATE internetdb SET hostnames = ?, ports = ?, cpes = ?, vulns = ?, tags = ?, last_updated = ?
                 WHERE ip = ?"""
         self.db.cursor.execute(query, (
             Utils.list_2_str(self.hostnames), Utils.list_2_str(self.ports), Utils.list_2_str(self.cpes),
