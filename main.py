@@ -83,8 +83,7 @@ if __name__ == '__main__':
         if args.database:
             db = args.database
         print(f"Data will be stored into database: {db}")
-        # InternetDBService.start_query(DB(db), args.internetdb)
-        InternetDBService.start_query2(db, args.internetdb)
+        InternetDBService.start_query(db, args.internetdb)
 
     if args.downloaddb:
         CVEService.download_local_db()

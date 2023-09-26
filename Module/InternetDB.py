@@ -1,7 +1,4 @@
-import datetime
-
 import sqlalchemy
-
 from sqlalchemy import Integer, String, DateTime
 from sqlalchemy import Column
 from sqlalchemy import create_engine
@@ -10,10 +7,6 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 import Module.Utils as Utils
 
 Base = declarative_base()
-
-
-def get_now_datetime():
-    return datetime.datetime.now().replace(microsecond=0)
 
 
 class InternetDB(Base):
@@ -25,17 +18,13 @@ class InternetDB(Base):
     cpes = Column(String)
     vulns = Column(String)
     tags = Column(String)
-    last_updated = Column(DateTime, default=get_now_datetime(), onupdate=get_now_datetime())
+    last_updated = Column(DateTime, default=Utils.get_now_datetime(), onupdate=Utils.get_now_datetime())
 
 
 def init(db_name: str="./databases/test.db", echo: bool=True):
     db_name = "sqlite:///" + db_name
     engine = create_engine(db_name, echo=echo)
     Base.metadata.create_all(engine)
-    return engine
-
-
-def session_init(engine: sqlalchemy.Engine):
     Session = sessionmaker(bind=engine)
     return Session()
 
@@ -49,8 +38,8 @@ def session_close(session: sqlalchemy.orm.session.Session):
 
 
 def contains_ip(session, ip_str: str):
-    q = session.query(InternetDB).filter(InternetDB.ip_str==ip_str)
-    return session.query(q.exists()).scalar()
+    record = session.query(InternetDB).filter(InternetDB.ip_str==ip_str)
+    return session.query(record.exists()).scalar()
 
 
 def add_records(session: sqlalchemy.orm.session.Session, obj: InternetDB | list[InternetDB]):
@@ -67,7 +56,7 @@ def add_records(session: sqlalchemy.orm.session.Session, obj: InternetDB | list[
                 info.cpes = item.cpes
                 info.vulns = item.vulns
                 info.tags = item.tags
-                info.last_updated = get_now_datetime()
+                info.last_updated = Utils.get_now_datetime()
             else:
                 session.add(item)
     else:
