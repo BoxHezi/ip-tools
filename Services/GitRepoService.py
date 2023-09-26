@@ -14,7 +14,7 @@ def start(db_name, repo: GitRepo, country_list: list):
         temp = GitRepoData(country, None, Utils.get_now_datetime())
         temp.data = repo.read_content_and_cal_hash(country)
         if gp.is_record_exists(session, country):
-            record = session.query(GitRepoData).filter(GitRepoData.country_code==country).all()[0]
+            record = session.query(GitRepoData).filter(GitRepoData.country_code == country).all()[0]
             record.data = temp.data
             record.last_updated = Utils.get_now_datetime()
         else:

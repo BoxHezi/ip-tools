@@ -21,7 +21,7 @@ class InternetDB(Base):
     last_updated = Column(DateTime, default=Utils.get_now_datetime(), onupdate=Utils.get_now_datetime())
 
 
-def init(db_name: str="./databases/test.db", echo: bool=True):
+def init(db_name: str = "./databases/test.db", echo: bool = True):
     db_name = "sqlite:///" + db_name
     engine = create_engine(db_name, echo=echo)
     Base.metadata.create_all(engine)
@@ -38,7 +38,7 @@ def session_close(session: sqlalchemy.orm.session.Session):
 
 
 def is_record_exists(session, ip: int):
-    record = session.query(InternetDB).filter(InternetDB.ip==ip)
+    record = session.query(InternetDB).filter(InternetDB.ip == ip)
     return session.query(record.exists()).scalar()
 
 
@@ -50,12 +50,12 @@ def add_records(session: sqlalchemy.orm.session.Session, obj: InternetDB | list[
     if isinstance(obj, list):
         for item in obj:
             if is_record_exists(session, item.ip):  # if record exists
-                update_record(session.query(InternetDB).filter(InternetDB.ip==item.ip).all()[0], item)
+                update_record(session.query(InternetDB).filter(InternetDB.ip == item.ip).all()[0], item)
             else:
                 session.add(item)
     else:
         if is_record_exists(session, obj.ip):
-            update_record(session.query(InternetDB).filter(InternetDB.ip==item.ip).all()[0], obj)
+            update_record(session.query(InternetDB).filter(InternetDB.ip == obj.ip).all()[0], obj)
         else:
             session.add(obj)
     session_commit(session)
@@ -68,7 +68,6 @@ def update_record(record, new_record):
     record.vulns = new_record.vulns
     record.tags = new_record.tags
     record.last_updated = Utils.get_now_datetime()
-
 
 # engine = db_init()
 # session = session_init(engine)

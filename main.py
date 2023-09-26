@@ -36,9 +36,10 @@ def init_argparse():
                      nargs="+")
     arg.add_argument("-cve", "--cve", help="get cve information from database\n"
                                            "require to use -db for specificing a database",
-                                    action="store_true")
+                     action="store_true")
     arg.add_argument("-db", "--database", help="Specify database will be used to stored/retrieve data")
-    arg.add_argument("--downloaddb", help="download CAPEC and CWE databaes, csv file, store in ./databases directory", action="store_true")
+    arg.add_argument("--downloaddb", help="download CAPEC and CWE databaes, csv file, store in ./databases directory",
+                     action="store_true")
     return arg
 
 
@@ -57,8 +58,8 @@ if __name__ == '__main__':
     if args.git or args.gf:
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
-        GitRepoService.start(args.database, repo, Utils.get_all_country_code() if args.gf else repo.find_updated_files())
-
+        GitRepoService.start(args.database, repo,
+                             Utils.get_all_country_code() if args.gf else repo.find_updated_files())
 
     if args.country is not None:
         country_list = []
@@ -88,7 +89,7 @@ if __name__ == '__main__':
 
     if args.cve:
         if not args.database:
-            raise("Database required")
+            raise "Database required"
         db = args.database
         targets = CVEService.start_cve_search(DB(db))
         print(targets)

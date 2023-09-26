@@ -9,7 +9,6 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 import Module.Utils as Utils
 
-
 # REF: https://github.com/herrbischoff/country-ip-blocks
 
 Base = declarative_base()
@@ -28,7 +27,7 @@ class GitRepoData(Base):
         self.last_updated = last_updated
 
 
-def init(db_name: str="./gitsample.db", echo: bool=True):
+def init(db_name: str, echo: bool = True):
     db_name = "sqlite:///" + db_name
     engine = create_engine(db_name, echo=echo)
     Base.metadata.create_all(engine)
@@ -45,7 +44,7 @@ def session_close(session: sqlalchemy.orm.session.Session):
 
 
 def is_record_exists(session, country_code: str):
-    record = session.query(GitRepoData).filter(GitRepoData.country_code==country_code)
+    record = session.query(GitRepoData).filter(GitRepoData.country_code == country_code)
     return session.query(record.exists()).scalar()
 
 

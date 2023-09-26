@@ -23,7 +23,7 @@ def list_to_ips(ls, ipv6: bool = False) -> list:
     return output
 
 
-def start_query(db_name: str, ls: list, ipv6: bool=False):
+def start_query(db_name: str, ls: list, ipv6: bool = False):
     session = InternetDB.init(db_name)
     ips = list_to_ips(ls, ipv6)
     results = []
@@ -32,9 +32,10 @@ def start_query(db_name: str, ls: list, ipv6: bool=False):
             result = Utils.internet_db_query(ip)  # type(result) => json/dict
             if "ip" not in result:
                 continue
-            temp = InternetDB.InternetDB(ip=Utils.ip_int(ip), ip_str=ip, hostnames=Utils.list_2_str(result["hostnames"]),
-                                        ports=Utils.list_2_str(result["ports"]), cpes=Utils.list_2_str(result["cpes"]),
-                                        vulns=Utils.list_2_str(result["vulns"]), tags=Utils.list_2_str(result["tags"]))
+            temp = InternetDB.InternetDB(ip=Utils.ip_int(ip), ip_str=ip,
+                                         hostnames=Utils.list_2_str(result["hostnames"]),
+                                         ports=Utils.list_2_str(result["ports"]), cpes=Utils.list_2_str(result["cpes"]),
+                                         vulns=Utils.list_2_str(result["vulns"]), tags=Utils.list_2_str(result["tags"]))
             results.append(temp)
         except Exception as e:
             print(f"Exception: {e}")
