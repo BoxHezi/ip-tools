@@ -7,9 +7,7 @@ from Module.SqliteDriver import DB
 from Module.GitRepo import GitRepo
 import Module.Utils as Utils
 
-from Services import DatabaseInitService, GitRepoService, Cidr2IpService, InternetDBService, CVECPEService
-
-from Module import InternetDB
+from Services import CVEService, DatabaseInitService, GitRepoService, Cidr2IpService, InternetDBService
 
 
 def init_argparse():
@@ -33,12 +31,13 @@ def init_argparse():
                      nargs="+")
     arg.add_argument("-inet", "--internetdb", help="Query information from https://internetdb.shodan.io/\n"
                                                    "support multiple ip and cidr, separate using space, "
-                                                   ":e.g. -inet 8.8.8.8 51.83.59.99 192.168.0.0/24",
+                                                   ":e.g. -inet 8.8.8.8 51.83.59.99 192.168.0.0/24\n"
+                                                   "if no database if specified, use ./databases/internetdb.db",
                      nargs="+")
     arg.add_argument("-cve", "--cve", help="get cve information from database\n"
-                                           "require a database path, e.g. -cve ./database/db.db")
-    # arg.add_argument("-cpe", "--cpe", help="get cpe information from database\n"
-    #                                        "require a database path, e.g. -cpe ./database/db.db")
+                                           "require to use -db for specificing a database",
+                                    action="store_true")
+    arg.add_argument("-db", "--database", help="Specify database will be used to stored/retrieve data")
     arg.add_argument("--downloaddb", help="download CAPEC and CWE databaes, csv file, store in ./databases directory", action="store_true")
     return arg
 
@@ -80,16 +79,21 @@ if __name__ == '__main__':
             print(Utils.asn_query(str(a)))
 
     if args.internetdb:  # type(internetdb) => list
-        db = "./databases/inet-" + Utils.get_current_time().replace(" ", "_") + ".db"
+        db = "./databases/internetdb.db"
+        if args.database:
+            db = args.database
         print(f"Data will be stored into database: {db}")
         # InternetDBService.start_query(DB(db), args.internetdb)
-        InternetDBService.start_query2(args.internetdb)
+        InternetDBService.start_query2(db, args.internetdb)
 
     if args.downloaddb:
-        CVECPEService.download_local_db()
+        CVEService.download_local_db()
 
     if args.cve:
-        targets = CVECPEService.start_cve_search(DB(args.cve))
+        if not args.database:
+            raise("Database required")
+        db = args.database
+        targets = CVEService.start_cve_search(DB(db))
         print(targets)
 
     # if args.cpe:

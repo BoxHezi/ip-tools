@@ -28,7 +28,8 @@ class InternetDB(Base):
     last_updated = Column(DateTime, default=get_now_datetime(), onupdate=get_now_datetime())
 
 
-def init(db_name: str="sqlite:///./databases/test.db", echo: bool=True):
+def init(db_name: str="./databases/test.db", echo: bool=True):
+    db_name = "sqlite:///" + db_name
     engine = create_engine(db_name, echo=echo)
     Base.metadata.create_all(engine)
     return engine
@@ -39,21 +40,39 @@ def session_init(engine: sqlalchemy.Engine):
     return Session()
 
 
+def session_commit(session):
+    session.commit()
+
+
 def session_close(session: sqlalchemy.orm.session.Session):
     session.close()
 
 
 def contains_ip(session, ip_str: str):
     q = session.query(InternetDB).filter(InternetDB.ip_str==ip_str)
-    print(session.query(q.exists()).scalar())
+    return session.query(q.exists()).scalar()
 
 
 def add_records(session: sqlalchemy.orm.session.Session, obj: InternetDB | list[InternetDB]):
+    """
+    add or update record.
+    if no exist record, insert into database; update record if exists
+    """
     if isinstance(obj, list):
-        session.add_all(obj)
+        for item in obj:
+            if contains_ip(session, item.ip_str):  # if record exists
+                info = session.query(InternetDB).filter(InternetDB.ip_str==item.ip_str).all()[0]
+                info.hostnames = item.hostnames
+                info.ports = item.ports
+                info.cpes = item.cpes
+                info.vulns = item.vulns
+                info.tags = item.tags
+                info.last_updated = get_now_datetime()
+            else:
+                session.add(item)
     else:
         session.add(obj)
-    session.commit()
+    session_commit(session)
 
 
 # engine = db_init()

@@ -55,20 +55,6 @@ def contain_high_cve(cve_search: ares.CVESearch, cves: list, checked_set: set, h
     return False
 
 
-# def search_cve(cve_id: str):
-#     # CIRCL_BASE_URL = "https://cve.circl.lu/api/cve/"
-#     NIST_NVD_BASE_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
-#     url = f"{NIST_NVD_BASE_URL}?cveId={cve_id}"
-#     resp = requests.get(url)
-#     resp.raise_for_status()
-#     # pprint.pprint(resp.json())
-#     return resp.json()
-
-
-# def search_cpe(cpe_name: str):
-#     pass
-
-
 def download_local_db():
     download_file("https://capec.mitre.org/data/csv/2000.csv.zip", "capec")
     download_file("https://cwe.mitre.org/data/csv/2000.csv.zip", "cwe")

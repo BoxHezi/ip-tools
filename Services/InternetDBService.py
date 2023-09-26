@@ -81,8 +81,8 @@ def result_to_db(db: DB, dao_list: list):
 #
 #################################
 
-def start_query2(ls: list, ipv6: bool=False):
-    engine = InternetDB.init()
+def start_query2(db_name: str, ls: list, ipv6: bool=False):
+    engine = InternetDB.init(db_name)
     session = InternetDB.session_init(engine)
     ips = ls_to_ips(ls, ipv6)
     results = []
