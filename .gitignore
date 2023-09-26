@@ -3,3 +3,4 @@ __pycache__/
 country-ip-blocks/
 *.db
 .DS_Store
+.vscode/

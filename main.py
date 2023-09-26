@@ -9,6 +9,8 @@ import Module.Utils as Utils
 
 from Services import DatabaseInitService, GitRepoService, Cidr2IpService, InternetDBService, CVECPEService
 
+from Module import InternetDB
+
 
 def init_argparse():
     arg = argparse.ArgumentParser(description="IP Tools", formatter_class=argparse.RawTextHelpFormatter)
@@ -78,7 +80,10 @@ if __name__ == '__main__':
             print(Utils.asn_query(str(a)))
 
     if args.internetdb:  # type(internetdb) => list
-        InternetDBService.start_query(DB("./databases/internetdb.db"), args.internetdb)
+        db = "./databases/inet-" + Utils.get_current_time().replace(" ", "_") + ".db"
+        print(f"Data will be stored into database: {db}")
+        # InternetDBService.start_query(DB(db), args.internetdb)
+        InternetDBService.start_query2(args.internetdb)
 
     if args.downloaddb:
         CVECPEService.download_local_db()

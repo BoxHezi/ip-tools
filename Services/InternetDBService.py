@@ -3,6 +3,8 @@ from Module.SqliteDriver import DB
 from Module.DAO.InternetDBDAO import InternetDBDAO
 from tqdm import tqdm
 
+from Module import InternetDB
+
 
 # ref: https://internetdb.shodan.io/
 
@@ -40,7 +42,6 @@ def ls_to_ips(ls, ipv6: bool = False) -> list:
             output += Utils.cidr2ip(i, ipv6)
         else:
             output.append(i)
-
     return output
 
 
@@ -72,3 +73,28 @@ def result_to_db(db: DB, dao_list: list):
     for dao in dao_list:
         dao.update_db() if dao.has_record() else dao.insert_into_db()
         db.perform_commit()
+
+
+#################################
+#
+# USE SQLAlchemy for database
+#
+#################################
+
+def start_query2(ls: list, ipv6: bool=False):
+    engine = InternetDB.init()
+    session = InternetDB.session_init(engine)
+    ips = ls_to_ips(ls, ipv6)
+    results = []
+    for ip in tqdm(ips):
+        try:
+            result = Utils.internet_db_query(ip)  # type(result) => json/dict
+            if "ip" not in result:
+                continue
+            temp = InternetDB.InternetDB(ip=Utils.ip_int(ip), ip_str=ip, hostnames=Utils.list_2_str(result["hostnames"]), ports=Utils.list_2_str(result["ports"]), cpes=Utils.list_2_str(result["cpes"]),
+                                vulns=Utils.list_2_str(result["vulns"]), tags=Utils.list_2_str(result["tags"]))
+            results.append(temp)
+        except Exception as e:
+            print(f"Exception: {e}")
+    InternetDB.add_records(session, results)
+    InternetDB.session_close(session)
