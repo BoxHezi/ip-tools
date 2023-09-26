@@ -7,7 +7,7 @@ from Module import InternetDB
 # ref: https://internetdb.shodan.io/
 
 
-def ls_to_ips(ls, ipv6: bool = False) -> list:
+def list_to_ips(ls, ipv6: bool = False) -> list:
     """
     convert input list (either IPs or cidr, or both) to list of ip
     :param ls: list to convert
@@ -23,15 +23,9 @@ def ls_to_ips(ls, ipv6: bool = False) -> list:
     return output
 
 
-#################################
-#
-# USE SQLAlchemy for database
-#
-#################################
-
 def start_query(db_name: str, ls: list, ipv6: bool=False):
     session = InternetDB.init(db_name)
-    ips = ls_to_ips(ls, ipv6)
+    ips = list_to_ips(ls, ipv6)
     results = []
     for ip in tqdm(ips):
         try:

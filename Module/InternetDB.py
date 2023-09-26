@@ -37,8 +37,8 @@ def session_close(session: sqlalchemy.orm.session.Session):
     session.close()
 
 
-def contains_ip(session, ip_str: str):
-    record = session.query(InternetDB).filter(InternetDB.ip_str==ip_str)
+def is_record_exists(session, ip: int):
+    record = session.query(InternetDB).filter(InternetDB.ip==ip)
     return session.query(record.exists()).scalar()
 
 
@@ -49,8 +49,8 @@ def add_records(session: sqlalchemy.orm.session.Session, obj: InternetDB | list[
     """
     if isinstance(obj, list):
         for item in obj:
-            if contains_ip(session, item.ip_str):  # if record exists
-                info = session.query(InternetDB).filter(InternetDB.ip_str==item.ip_str).all()[0]
+            if is_record_exists(session, item.ip):  # if record exists
+                info = session.query(InternetDB).filter(InternetDB.ip==item.ip).all()[0]
                 info.hostnames = item.hostnames
                 info.ports = item.ports
                 info.cpes = item.cpes
