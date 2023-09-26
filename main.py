@@ -52,15 +52,13 @@ if __name__ == '__main__':
     args = init_argparse().parse_args()  # init argparse
     config = init_configparser()  # init configparse
 
-    DatabaseInitService.init_db_table(config["DATABASE"])
+    # DatabaseInitService.init_db_table(config["DATABASE"])
 
     if args.git or args.gf:
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
-        updated_country = repo.find_updated_files()
-        GitRepoService.git_repo_to_database(repo, DB(config["DATABASE"]),
-                                            Utils.get_all_country_code() if args.gf else updated_country)
-        del repo
+        GitRepoService.start(args.database, repo, Utils.get_all_country_code() if args.gf else repo.find_updated_files())
+
 
     if args.country is not None:
         country_list = []
