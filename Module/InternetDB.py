@@ -50,18 +50,24 @@ def add_records(session: sqlalchemy.orm.session.Session, obj: InternetDB | list[
     if isinstance(obj, list):
         for item in obj:
             if is_record_exists(session, item.ip):  # if record exists
-                info = session.query(InternetDB).filter(InternetDB.ip==item.ip).all()[0]
-                info.hostnames = item.hostnames
-                info.ports = item.ports
-                info.cpes = item.cpes
-                info.vulns = item.vulns
-                info.tags = item.tags
-                info.last_updated = Utils.get_now_datetime()
+                update_record(session.query(InternetDB).filter(InternetDB.ip==item.ip).all()[0], item)
             else:
                 session.add(item)
     else:
-        session.add(obj)
+        if is_record_exists(session, obj.ip):
+            update_record(session.query(InternetDB).filter(InternetDB.ip==item.ip).all()[0], obj)
+        else:
+            session.add(obj)
     session_commit(session)
+
+
+def update_record(record, new_record):
+    record.hostnames = new_record.hostnames
+    record.ports = new_record.ports
+    record.cpes = new_record.cpes
+    record.vulns = new_record.vulns
+    record.tags = new_record.tags
+    record.last_updated = Utils.get_now_datetime()
 
 
 # engine = db_init()
