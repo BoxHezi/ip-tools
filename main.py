@@ -3,7 +3,6 @@
 import configparser
 import argparse
 
-from Module.SqliteDriver import DB
 from Module.GitRepo import GitRepo
 import Module.Utils as Utils
 
