@@ -87,5 +87,5 @@ if __name__ == '__main__':
         if not args.database:
             raise "Database required"
         db = args.database
-        targets = CVEService.start_cve_search(DB(db))
+        targets = CVEService.start_cve_search(db)
         print(targets)
