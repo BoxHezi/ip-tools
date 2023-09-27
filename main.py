@@ -7,7 +7,7 @@ from Module.SqliteDriver import DB
 from Module.GitRepo import GitRepo
 import Module.Utils as Utils
 
-from Services import CVEService, DatabaseInitService, GitRepoService, Cidr2IpService, InternetDBService
+from Services import CVEService, GitRepoService, Cidr2IpService, InternetDBService
 
 
 def init_argparse():
@@ -53,13 +53,11 @@ if __name__ == '__main__':
     args = init_argparse().parse_args()  # init argparse
     config = init_configparser()  # init configparse
 
-    # DatabaseInitService.init_db_table(config["DATABASE"])
-
     if args.git or args.gf:
         # git local repo initialization
         repo = GitRepo(config["GITREPO"])
-        GitRepoService.start(args.database, repo,
-                             Utils.get_all_country_code() if args.gf else repo.find_updated_files())
+        db = args.database if args.database else "./data.db"
+        GitRepoService.start(db, repo, Utils.get_all_country_code() if args.gf else repo.find_updated_files())
 
     if args.country is not None:
         country_list = []
@@ -67,7 +65,8 @@ if __name__ == '__main__':
             country_list = ["au"] if len(args.country) == 0 else args.country
         else:
             country_list = Utils.get_all_country_code()
-        Cidr2IpService.cidr_to_ip_mapper(DB(config["DATABASE"]), country_list)
+        db = args.database if args.database else "./data.db"
+        Cidr2IpService.start(db, country_list)
 
     if args.ip:
         for i in args.ip:
@@ -78,9 +77,7 @@ if __name__ == '__main__':
             print(Utils.asn_query(str(a)))
 
     if args.internetdb:  # type(internetdb) => list
-        db = "./databases/internetdb.db"
-        if args.database:
-            db = args.database
+        db = args.database if args.database else "./databases/internetdb.db"
         print(f"Data will be stored into database: {db}")
         InternetDBService.start_query(db, args.internetdb)
 
@@ -93,6 +90,3 @@ if __name__ == '__main__':
         db = args.database
         targets = CVEService.start_cve_search(DB(db))
         print(targets)
-
-    # if args.cpe:
-    #     print(args.cpe)

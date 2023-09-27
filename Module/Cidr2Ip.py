@@ -1,11 +1,57 @@
-#!/usr/local/bin/python3
 from tqdm import tqdm
 
+import sqlalchemy
+from sqlalchemy import Integer, String, DateTime, PickleType
+from sqlalchemy import Column
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+
 from Module.Utils import cidr2ip
+import Module.Utils as Utils
 
 # REF: https://github.com/herrbischoff/country-ip-blocks
 
 BASE_PATH = "./country-ip-blocks/ipv4/"
+
+Base = declarative_base()
+
+class Cidr2IpData(Base):
+    __tablename__ = "cidr_ip_mapper"
+
+    id = Column(Integer, primary_key=True)
+    country_code = Column(String, nullable=False)
+    data = Column(PickleType, nullable=False)  # pickled CIDR2IP instance
+    last_updated = Column(DateTime, default=Utils.get_now_datetime(), onupdate=Utils.get_now_datetime())
+
+    def __init__(self, country_code, data):
+        self.country_code = country_code
+        self.data = data
+        self.last_updated = Utils.get_now_datetime()
+
+
+def init(db_name: str, echo: bool = True):
+    db_name = "sqlite:///" + db_name
+    engine = create_engine(db_name, echo=echo)
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+
+def session_commit(session: sqlalchemy.orm.session.Session):
+    session.commit()
+
+
+def session_close(session: sqlalchemy.orm.session.Session):
+    session.close()
+
+
+def is_record_exists(session, country_code: str):
+    record = session.query(Cidr2IpData).filter(Cidr2IpData.country_code == country_code)
+    return session.query(record.exists()).scalar()
+
+
+def add_record(session, obj: Cidr2IpData):
+    session.add(obj)
 
 
 class CIDR2IP:
