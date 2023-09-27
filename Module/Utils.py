@@ -10,6 +10,7 @@ import json
 import ipaddress
 import requests
 from time import strftime
+import datetime
 
 IPAPI_API_ENDPOINT = "https://api.ipapi.is/?q="
 SHODAN_INTERNET_DB_ENDPOINT = "https://internetdb.shodan.io/"
@@ -75,6 +76,10 @@ def compare_obj(obj1: bytes, obj2: bytes):
 
 def get_current_time():
     return strftime("%Y-%m-%d %H:%M:%S")
+
+
+def get_now_datetime():
+    return datetime.datetime.now().replace(microsecond=0)
 
 
 def serialize(obj: object):

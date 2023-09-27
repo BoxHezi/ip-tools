@@ -1,25 +1,21 @@
-from Module.GitRepo import GitRepo
-from Module.SqliteDriver import DB
-from Module.DAO.GitRepoDAO import GitRepoData
-
-from sqlite3 import Error as sql_error
+import Module.GitRepo as gp
+import Module.Utils as Utils
 
 
-def git_repo_to_database(repo: GitRepo, db: DB, country_list: list):
+def start(db_name, repo: gp.GitRepo, country_list: list):
     if len(country_list) == 0:
         return
 
-    db.begin_transaction()
+    if not db_name or db_name == "":
+        db_name = "./data.db"
+    session = gp.init(db_name, False)
     for country in country_list:
-        dao = GitRepoData(db, country)
-        dao.data = repo.read_content_and_cal_hash(country)
-        try:
-            if dao.has_record:
-                dao.update_db()
-            else:
-                dao.insert_into_db()
-        except sql_error as e:
-            print(e)
-            db.perform_rollback()
-            return
-    db.perform_commit()
+        temp = gp.GitRepoDAO(country, None, Utils.get_now_datetime())
+        temp.data = repo.read_content_and_cal_hash(country)
+        if gp.is_record_exists(session, country):
+            record = session.query(gp.GitRepoDAO).filter(gp.GitRepoDAO.country_code == country).all()[0]
+            record.data = temp.data
+            record.last_updated = Utils.get_now_datetime()
+        else:
+            gp.add_record(session, temp)
+    gp.session_commit(session)

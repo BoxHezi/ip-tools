@@ -1,9 +1,55 @@
 import os
 import git
+
+import sqlalchemy
+from sqlalchemy import String, Integer, JSON, DateTime
+from sqlalchemy import Column
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+
 import Module.Utils as Utils
 
-
 # REF: https://github.com/herrbischoff/country-ip-blocks
+
+Base = declarative_base()
+
+
+class GitRepoDAO(Base):
+    __tablename__ = "cidr_git_repo"
+    id = Column(Integer, primary_key=True, index=True)
+    country_code = Column(String, nullable=False)
+    data = Column(JSON, nullable=False)
+    last_updated = Column(DateTime, default=Utils.get_now_datetime(), onupdate=Utils.get_now_datetime())
+
+    def __init__(self, country_code, data, last_updated):
+        self.country_code = country_code
+        self.data = data
+        self.last_updated = last_updated
+
+def init(db_name: str, echo: bool = True):
+    db_name = "sqlite:///" + db_name
+    engine = create_engine(db_name, echo=echo)
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+
+def session_commit(session):
+    session.commit()
+
+
+def session_close(session: sqlalchemy.orm.session.Session):
+    session.close()
+
+
+def is_record_exists(session, country_code: str):
+    record = session.query(GitRepoDAO).filter(GitRepoDAO.country_code == country_code)
+    return session.query(record.exists()).scalar()
+
+
+def add_record(session, obj: GitRepoDAO):
+    session.add(obj)
+
 
 class GitRepo:
     __IPv4_BASE_PATH = "./country-ip-blocks/ipv4/"
