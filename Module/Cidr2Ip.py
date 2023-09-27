@@ -15,7 +15,7 @@ BASE_PATH = "./country-ip-blocks/ipv4/"
 
 Base = declarative_base()
 
-class Cidr2IpData(Base):
+class Cidr2IpDAO(Base):
     __tablename__ = "cidr_ip_mapper"
 
     id = Column(Integer, primary_key=True)
@@ -46,11 +46,11 @@ def session_close(session: sqlalchemy.orm.session.Session):
 
 
 def is_record_exists(session, country_code: str):
-    record = session.query(Cidr2IpData).filter(Cidr2IpData.country_code == country_code)
+    record = session.query(Cidr2IpDAO).filter(Cidr2IpDAO.country_code == country_code)
     return session.query(record.exists()).scalar()
 
 
-def add_record(session, obj: Cidr2IpData):
+def add_record(session, obj: Cidr2IpDAO):
     session.add(obj)
 
 

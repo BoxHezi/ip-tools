@@ -9,7 +9,7 @@ import Module.Utils as Utils
 Base = declarative_base()
 
 
-class InternetDB(Base):
+class InternetDBDAO(Base):
     __tablename__ = "internetdb"
     ip = Column(Integer, primary_key=True, nullable=False, index=True)
     ip_str = Column(String, nullable=False)
@@ -38,11 +38,11 @@ def session_close(session: sqlalchemy.orm.session.Session):
 
 
 def is_record_exists(session, ip: int):
-    record = session.query(InternetDB).filter(InternetDB.ip == ip)
+    record = session.query(InternetDBDAO).filter(InternetDBDAO.ip == ip)
     return session.query(record.exists()).scalar()
 
 
-def add_records(session: sqlalchemy.orm.session.Session, obj: InternetDB | list[InternetDB]):
+def add_records(session: sqlalchemy.orm.session.Session, obj: InternetDBDAO | list[InternetDBDAO]):
     """
     add or update record.
     if no exist record, insert into database; update record if exists
@@ -50,12 +50,12 @@ def add_records(session: sqlalchemy.orm.session.Session, obj: InternetDB | list[
     if isinstance(obj, list):
         for item in obj:
             if is_record_exists(session, item.ip):  # if record exists
-                update_record(session.query(InternetDB).filter(InternetDB.ip == item.ip).all()[0], item)
+                update_record(session.query(InternetDBDAO).filter(InternetDBDAO.ip == item.ip).all()[0], item)
             else:
                 session.add(item)
     else:
         if is_record_exists(session, obj.ip):
-            update_record(session.query(InternetDB).filter(InternetDB.ip == obj.ip).all()[0], obj)
+            update_record(session.query(InternetDBDAO).filter(InternetDBDAO.ip == obj.ip).all()[0], obj)
         else:
             session.add(obj)
     session_commit(session)
@@ -68,37 +68,3 @@ def update_record(record, new_record):
     record.vulns = new_record.vulns
     record.tags = new_record.tags
     record.last_updated = Utils.get_now_datetime()
-
-# engine = db_init()
-# session = session_init(engine)
-# contains_ip(session, "192.168.1.1")
-# # add_records(session, InternetDB(ip=Utils.ip_int("192.168.1.1"), ip_str="192.168.1.1"))
-# add_records(session, [
-#     InternetDB(ip=Utils.ip_int("192.168.1.1"), ip_str="192.168.1.1"),
-#     InternetDB(ip=Utils.ip_int("192.168.1.2"), ip_str="192.168.1.2"),
-#     InternetDB(ip=Utils.ip_int("192.168.1.3"), ip_str="192.168.1.3")
-# ])
-# contains_ip(session, "192.168.1.1")
-# session_close(session)
-
-# engine = create_engine("sqlite:///./databases/test.db", echo=True)
-# Base.metadata.create_all(engine)
-# Session = sessionmaker(bind=engine)
-# session = Session()
-
-# q = session.query(InternetDB.ip).filter(InternetDB.ip_str=="192.168.1.1")
-# print("===" * 10)
-# print(session.query(q.exists()).scalar())
-
-# # session.add_all(
-# #     [InternetDB(ip=Utils.ip_int("192.168.1.1"), ip_str="192.168.1.1"),
-# #      InternetDB(ip=Utils.ip_int("192.168.1.2"), ip_str="192.168.1.2")]
-# # )
-# # session.commit()
-
-# # for record in session.query(InternetDB).all():
-# #     print("==" * 10)
-# #     print(record)
-
-# print(type(session))
-# session.close()

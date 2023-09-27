@@ -14,7 +14,7 @@ import Module.Utils as Utils
 Base = declarative_base()
 
 
-class GitRepoData(Base):
+class GitRepoDAO(Base):
     __tablename__ = "cidr_git_repo"
     id = Column(Integer, primary_key=True, index=True)
     country_code = Column(String, nullable=False)
@@ -25,7 +25,6 @@ class GitRepoData(Base):
         self.country_code = country_code
         self.data = data
         self.last_updated = last_updated
-
 
 def init(db_name: str, echo: bool = True):
     db_name = "sqlite:///" + db_name
@@ -44,11 +43,11 @@ def session_close(session: sqlalchemy.orm.session.Session):
 
 
 def is_record_exists(session, country_code: str):
-    record = session.query(GitRepoData).filter(GitRepoData.country_code == country_code)
+    record = session.query(GitRepoDAO).filter(GitRepoDAO.country_code == country_code)
     return session.query(record.exists()).scalar()
 
 
-def add_record(session, obj: GitRepoData):
+def add_record(session, obj: GitRepoDAO):
     session.add(obj)
 
 

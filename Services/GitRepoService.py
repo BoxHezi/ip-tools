@@ -10,10 +10,10 @@ def start(db_name, repo: gp.GitRepo, country_list: list):
         db_name = "./data.db"
     session = gp.init(db_name, False)
     for country in country_list:
-        temp = gp.GitRepoData(country, None, Utils.get_now_datetime())
+        temp = gp.GitRepoDAO(country, None, Utils.get_now_datetime())
         temp.data = repo.read_content_and_cal_hash(country)
         if gp.is_record_exists(session, country):
-            record = session.query(gp.GitRepoData).filter(gp.GitRepoData.country_code == country).all()[0]
+            record = session.query(gp.GitRepoDAO).filter(gp.GitRepoDAO.country_code == country).all()[0]
             record.data = temp.data
             record.last_updated = Utils.get_now_datetime()
         else:
