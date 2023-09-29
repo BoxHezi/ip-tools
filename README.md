@@ -6,9 +6,9 @@
 - [ ] ip and asn query function, ref: https://ipapi.is/developers.html
   - [x] single IP or ASN / multiple IPs or ASNs
   - [ ] Add support for CIDR
-- [ ] ip lookups, for open ports and vulnerabilities, ref: https://internetdb.shodan.io/
+- [x] ip lookups, for open ports and vulnerabilities, ref: https://internetdb.shodan.io/
   - [x] single IP or multiple IPs
-  - [ ] Add support for CIDR
+  - [x] Add support for CIDR
 - [ ] result to json, database, etc
   - [x] git repo info to database
     - [x] store hash into database to detect change

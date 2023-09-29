@@ -7,8 +7,8 @@ import time  # add time.sleep(6) if query from nvdlib, due to requests rate limi
 import nvdlib
 import ares  # python wrapper for https://www.circl.lu/services/cve-search/
 
-from Module.InternetDB import InternetDBDAO
-import Module.InternetDB as idb
+from Module.DatabaseDriver import Database
+from Module.InternetDB import InternetDB, InternetDBDAO
 
 
 # NIST NVD CVE API reference: https://nvd.nist.gov/developers/vulnerabilities
@@ -18,9 +18,10 @@ import Module.InternetDB as idb
 # CWE CSV: https://cwe.mitre.org/data/csv/2000.csv.zip
 
 
-def start_cve_search(db_name: str):
-    session = idb.init(db_name)
-    records = session.query(InternetDBDAO).filter(InternetDBDAO.vulns != '').all()
+def start_cve_search(db_path: str):
+    db = Database(db_path, model=InternetDB)
+    dao = InternetDBDAO(db)
+    records = dao.get_all_records_has_vulns()
     potential_targets = set()
 
     checked_set = set()
