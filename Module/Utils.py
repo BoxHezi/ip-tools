@@ -79,7 +79,7 @@ def get_current_time():
 
 
 def get_now_datetime():
-    return datetime.datetime.now().replace(microsecond=0)
+    return datetime.datetime.now()
 
 
 def serialize(obj: object):
