@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     if args.internetdb:  # type(internetdb) => list
         db_path = args.database if args.database else "./databases/internetdb.db"
-        InternetDBService.start_query(db_path, args.internetdb)
+        InternetDBService.start(db_path, args.internetdb)
 
     if args.downloaddb:
         CVEService.download_local_db()

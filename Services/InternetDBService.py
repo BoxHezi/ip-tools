@@ -1,7 +1,8 @@
 import Module.Utils as Utils
 from tqdm import tqdm
 
-from Module import InternetDB
+from Module.InternetDB import InternetDB, InternetDBDAO
+from Module.DatabaseDriver import Database
 
 
 # ref: https://internetdb.shodan.io/
@@ -23,21 +24,18 @@ def list_to_ips(ls, ipv6: bool = False) -> list:
     return output
 
 
-def start_query(db_name: str, ls: list, ipv6: bool = False):
-    session = InternetDB.init(db_name)
-    ips = list_to_ips(ls, ipv6)
-    results = []
+def start(db_path: str, ip_list: list, ipv6: bool = False):
+    db = Database(db_path, model=InternetDB)
+    ips = list_to_ips(ip_list, ipv6)
     for ip in tqdm(ips):
         try:
             result = Utils.internet_db_query(ip)  # type(result) => json/dict
             if "ip" not in result:
                 continue
-            temp = InternetDB.InternetDBDAO(ip=Utils.ip_int(ip), ip_str=ip,
-                                         hostnames=Utils.list_2_str(result["hostnames"]),
-                                         ports=Utils.list_2_str(result["ports"]), cpes=Utils.list_2_str(result["cpes"]),
-                                         vulns=Utils.list_2_str(result["vulns"]), tags=Utils.list_2_str(result["tags"]))
-            results.append(temp)
+            temp = InternetDB(result)
+            dao = InternetDBDAO(db)
+            dao.update_record(temp) if dao.has_record_for_ip(ip) else dao.add_record(temp)
         except Exception as e:
-            print(f"Exception: {e}")
-    InternetDB.add_records(session, results)
-    InternetDB.session_close(session)
+            print(f"Exception: {e} while querying {ip}")
+    db.commit()
+    db.close()
