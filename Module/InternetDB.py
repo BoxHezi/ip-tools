@@ -1,8 +1,6 @@
-import sqlalchemy
 from sqlalchemy import Integer, String, DateTime
 from sqlalchemy import Column
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base
 
 from Module.DatabaseDriver import Database
 import Module.Utils as Utils
@@ -53,6 +51,16 @@ class InternetDBDAO:
         record.vulns = new.vulns
         record.tags = new.tags
         record.last_updated = Utils.get_now_datetime()
+
+    def get_all_records(self):
+        session = self.db.get_session()
+        records = session.query(InternetDB).all()
+        return records
+
+    def get_all_records_has_vulns(self):
+        session = self.db.get_session()
+        records = session.query(InternetDB).filter(InternetDB.vulns != '').all()
+        return records
 
     def get_record_by_ip(self, ip: int | str):
         if isinstance(ip, str):
