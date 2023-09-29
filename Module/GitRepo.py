@@ -34,8 +34,7 @@ class GitRepo:
         # find all files from new pushes
         for item in self.repo.index.diff(remote_hash):
             updated_country = item.a_path[5:7]
-            if updated_country not in updated_files:
-                updated_files.append(updated_country)
+            updated_country not in updated_files and updated_files.append(updated_country)
         if pull:
             print("Pulling from remote...")
             self.pull_from_remote()
@@ -44,4 +43,3 @@ class GitRepo:
     def pull_from_remote(self):
         origin = self.repo.remotes.origin
         origin.pull()
-

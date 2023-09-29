@@ -5,6 +5,7 @@ from sqlalchemy.orm import declarative_base
 from Module.DatabaseDriver import Database
 import Module.Utils as Utils
 
+
 # REF: https://github.com/herrbischoff/country-ip-blocks
 
 
@@ -31,7 +32,6 @@ class CountryCidr(declarative_base()):
         result["ipv4_info"] = {"md5": ipv4_hashes[0], "sha256": ipv4_hashes[1]} if ipv4_hashes else None
         result["ipv6_info"] = {"md5": ipv6_hashes[0], "sha256": ipv6_hashes[1]} if ipv6_hashes else None
         return result
-
 
 
 class CountryCidrDAO:
