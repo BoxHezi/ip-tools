@@ -3,3 +3,4 @@ requests==2.31.0
 tqdm==4.65.0
 nvdlib
 ares
+SQLAlchemy
