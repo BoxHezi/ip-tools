@@ -17,25 +17,30 @@ def list_to_ips(ls, ipv6: bool = False) -> list:
     """
     output = []
     for i in ls:
-        if Utils.is_cidr(i):
-            output += Utils.cidr2ip(i, ipv6)
-        else:
-            output.append(i)
+        output += Utils.cidr2ip(i, ipv6) if Utils.is_cidr(i) else output.append(i)
     return output
 
 
 def start(db_path: str, ip_list: list, ipv6: bool = False):
     db = Database(db_path, model=InternetDB)
     ips = list_to_ips(ip_list, ipv6)
-    for ip in tqdm(ips):
-        try:
-            result = Utils.internet_db_query(ip)  # type(result) => json/dict
-            if "ip" not in result:
-                continue
-            temp = InternetDB(result)
-            dao = InternetDBDAO(db)
-            dao.update_record(temp) if dao.has_record_for_ip(ip) else dao.add_record(temp)
-        except Exception as e:
-            print(f"Exception: {e} while querying {ip}")
+    to_scan_list = Utils.list_2_chunks(ips, 100)
+    success_list = []
+    fail_list = []
+    for to_scan in to_scan_list:
+        print(f"Querying ip information from {to_scan[0]} ... {to_scan[-1]}")
+        for ip in tqdm(to_scan):
+            try:
+                result = Utils.internet_db_query(ip)  # type(result) => json/dict
+                if "ip" not in result:
+                    continue
+                temp = InternetDB(result)
+                dao = InternetDBDAO(db)
+                dao.update_record(temp) if dao.has_record_for_ip(ip) else dao.add_record(temp)
+                success_list.append(ip)
+            except Exception as e:
+                print(f"Exception: {e} while querying {ip}")
+                fail_list.append(ip)
     db.commit()
     db.close()
+    return success_list, fail_list

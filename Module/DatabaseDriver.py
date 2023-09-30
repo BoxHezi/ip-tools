@@ -1,12 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from Module.Utils import debug_mode
+
 
 class Database:
-
     def __init__(self, db_name: str, db_engine: str = "sqlite:///", echo: bool = True, model: any = None):
         db = db_engine + db_name
-        self.__engine = create_engine(db, echo=echo)
+        self.__engine = create_engine(db, echo=debug_mode())
         Session = sessionmaker(bind=self.__engine)
         model.metadata.create_all(self.__engine)
         self.__session = Session()
