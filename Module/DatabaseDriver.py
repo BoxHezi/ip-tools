@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from Module.Utils import debug_mode
+from Module.utils import debug_mode
 
 
 class Database:

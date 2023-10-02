@@ -1,4 +1,4 @@
-import Module.Utils as Utils
+import Module.utils as Utils
 from tqdm import tqdm
 
 from Module.InternetDB import InternetDB, InternetDBDAO
@@ -34,10 +34,11 @@ def start(db_path: str, ip_list: list, ipv6: bool = False):
         print(f"Querying ip information from {to_scan[0]} ... {to_scan[-1]}")
         for ip in tqdm(to_scan):
             try:
-                result = Utils.internet_db_query(ip)  # type(result) => json/dict
-                if "ip" not in result:
+                resp = Utils.internet_db_query(ip)  # type(result) => json/dict
+                resp_json = Utils.resp_2_json(resp)
+                if "ip" not in resp_json:
                     continue
-                temp = InternetDB(result)
+                temp = InternetDB(resp_json)
                 dao = InternetDBDAO(db)
                 dao.update_record(temp) if dao.has_record_for_ip(ip) else dao.add_record(temp)
                 success_list.append(ip)

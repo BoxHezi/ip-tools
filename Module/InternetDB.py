@@ -3,7 +3,7 @@ from sqlalchemy import Column
 from sqlalchemy.orm import declarative_base
 
 from Module.DatabaseDriver import Database
-import Module.Utils as Utils
+import Module.utils as Utils
 
 
 class InternetDB(declarative_base()):

@@ -4,7 +4,7 @@ import configparser
 import argparse
 
 from Module.GitRepo import GitRepo
-import Module.Utils as Utils
+import Module.utils as utils
 
 from Services import CVEService, CidrInfoService, Cidr2IpService, InternetDBService
 
@@ -59,7 +59,7 @@ def main():
         updated_list = []
         if args.gf:
             repo.pull_from_remote()  # pull from remote if force to run git repo check
-            updated_list = Utils.get_all_country_code()
+            updated_list = utils.get_all_country_code()
         else:
             updated_list = repo.find_updated_files()
         if len(updated_list) == 0:
@@ -72,17 +72,17 @@ def main():
         if args.country != ["-"]:  # parse all country's cidr to ip if args.country is ["-"]
             country_list = ["au"] if len(args.country) == 0 else args.country
         else:
-            country_list = Utils.get_all_country_code()
+            country_list = utils.get_all_country_code()
         db_path = args.database if args.database else "./databases/data.db"
         Cidr2IpService.start(db_path, country_list)
 
     if args.ip:
         for i in args.ip:
-            print(Utils.ip_query(str(i)))
+            print(utils.resp_2_json(utils.ip_query(str(i))))
 
     if args.asn:
         for a in args.asn:
-            print(Utils.asn_query(str(a)))
+            print(utils.resp_2_json(utils.asn_query(str(a))))
 
     if args.internetdb:  # type(internetdb) => list
         db_path = args.database if args.database else "./databases/internetdb.db"
