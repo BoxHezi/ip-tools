@@ -18,7 +18,7 @@ from Module.InternetDB import InternetDB, InternetDBDAO
 # CWE CSV: https://cwe.mitre.org/data/csv/2000.csv.zip
 
 
-def start_cve_search(db_path: str):
+def start(db_path: str):
     db = Database(db_path, model=InternetDB)
     dao = InternetDBDAO(db)
     records = dao.get_all_records_has_vulns()

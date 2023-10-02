@@ -5,7 +5,7 @@ from Module.Utils import debug_mode
 
 
 class Database:
-    def __init__(self, db_name: str, db_engine: str = "sqlite:///", echo: bool = True, model: any = None):
+    def __init__(self, db_name: str, db_engine: str = "sqlite:///", model: any = None):
         db = db_engine + db_name
         self.__engine = create_engine(db, echo=debug_mode())
         Session = sessionmaker(bind=self.__engine)

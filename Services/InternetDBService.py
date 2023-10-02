@@ -17,7 +17,10 @@ def list_to_ips(ls, ipv6: bool = False) -> list:
     """
     output = []
     for i in ls:
-        output += Utils.cidr2ip(i, ipv6) if Utils.is_cidr(i) else output.append(i)
+        if Utils.is_cidr(i):
+            output += Utils.cidr2ip(i, ipv6)
+        else:
+            output.append(i)
     return output
 
 

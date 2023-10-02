@@ -35,7 +35,6 @@ class CountryCidr(declarative_base()):
 
 
 class CountryCidrDAO:
-
     def __init__(self, db: Database):
         self.db = db
 

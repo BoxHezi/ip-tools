@@ -48,7 +48,7 @@ def init_configparser(conf_path: str = "config.conf"):
     return conf
 
 
-if __name__ == '__main__':
+def main():
     args = init_argparse().parse_args()  # init argparse
     config = init_configparser()  # init configparse
 
@@ -95,5 +95,9 @@ if __name__ == '__main__':
         if not args.database:
             raise "Database required"
         db_path = args.database
-        targets = CVEService.start_cve_search(db_path)
+        targets = CVEService.start(db_path)
         print(targets)
+
+
+if __name__ == "__main__":
+    main()
